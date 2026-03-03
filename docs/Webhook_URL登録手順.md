@@ -1,5 +1,8 @@
 # Webhook URL 登録手順
 
+**本番URL**: https://terastar-line.vercel.app  
+**Webhook URL**: https://terastar-line.vercel.app/api/line/webhook
+
 デプロイが完了したら、以下の手順で LINE に Webhook URL を登録してください。
 
 ## 前提

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { createClient } from "@supabase/supabase-js";
 
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 
@@ -16,9 +17,19 @@ function verifySignature(body: string, signature: string | null): boolean {
 }
 
 /**
+ * Supabase サービスロール（Webhook は認証なしで呼ばれるため）
+ */
+function getServiceClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key);
+}
+
+/**
  * LINE Webhook エンドポイント
  * - 友だち追加、メッセージ受信などのイベントを受信
- * - 署名検証を行い、200 OK を返す（LINEは1秒以内の応答を期待）
+ * - DB保存・患者紐付け（line_user_id で既存患者を検索）
  */
 export async function POST(request: NextRequest) {
   try {
@@ -35,17 +46,77 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // イベント処理（Phase 2で実装: DB保存、患者紐付けなど）
+    const supabase = getServiceClient();
+    if (!supabase) {
+      console.warn("[LINE Webhook] Supabase not configured, skipping DB save");
+      return NextResponse.json({ ok: true });
+    }
+
+    const { data: tenant } = await supabase
+      .schema("terastar_line")
+      .from("tenants")
+      .select("id")
+      .limit(1)
+      .single();
+
+    if (!tenant) {
+      return NextResponse.json({ ok: true });
+    }
+
     for (const event of events) {
+      const lineUserId = event.source?.userId;
+      if (!lineUserId) continue;
+
       if (event.type === "follow") {
-        // 友だち追加: 患者紐付け処理を後で実装
-        console.log("[LINE] follow:", event.source?.userId);
+        const { error: pendingErr } = await supabase
+          .schema("terastar_line")
+          .from("line_pending")
+          .upsert(
+            { tenant_id: tenant.id, line_user_id: lineUserId },
+            { onConflict: "tenant_id,line_user_id" }
+          );
+        if (pendingErr) {
+          console.warn("[LINE] line_pending upsert failed:", pendingErr.message);
+        }
       } else if (event.type === "message") {
-        // メッセージ受信: チャット履歴保存を後で実装
-        console.log("[LINE] message:", event.message?.type, event.source?.userId);
+        const msg = event.message;
+        if (msg?.type !== "text") continue;
+
+        const { data: patient } = await supabase
+          .schema("terastar_line")
+          .from("patients")
+          .select("id")
+          .eq("line_user_id", lineUserId)
+          .eq("tenant_id", tenant.id)
+          .single();
+
+        if (patient) {
+          await supabase.schema("terastar_line").from("chat_messages").insert({
+            tenant_id: tenant.id,
+            patient_id: patient.id,
+            sender: "patient",
+            content: msg.text,
+            line_message_id: msg.id,
+          });
+        }
       } else if (event.type === "postback") {
-        // ボタンタップ（選択式返信）: フォローアップ返信処理を後で実装
-        console.log("[LINE] postback:", event.postback?.data, event.source?.userId);
+        const data = event.postback?.data ?? "";
+        const { data: patient } = await supabase
+          .schema("terastar_line")
+          .from("patients")
+          .select("id")
+          .eq("line_user_id", lineUserId)
+          .eq("tenant_id", tenant.id)
+          .single();
+
+        if (patient) {
+          await supabase.schema("terastar_line").from("follow_up_replies").insert({
+            tenant_id: tenant.id,
+            patient_id: patient.id,
+            reply_type: "postback",
+            reply_text: data,
+          });
+        }
       }
     }
 
