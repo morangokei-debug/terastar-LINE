@@ -1,4 +1,5 @@
 import { RichMenuSetup } from "./RichMenuSetup";
+import { LineQrCode } from "./LineQrCode";
 
 export default function SettingsPage() {
   return (
@@ -8,6 +9,8 @@ export default function SettingsPage() {
       </h2>
 
       <div className="space-y-6">
+        <LineQrCode />
+
         <RichMenuSetup />
 
         <div
