@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import sharp from "sharp";
 import { createClient } from "@/lib/supabase/server";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
@@ -13,10 +14,6 @@ function getBaseUrl(request: NextRequest): string {
   return host.startsWith("localhost") ? `http://${host}` : `https://${host}`;
 }
 
-/**
- * リッチメニューをセットアップするAPI
- * GET: セットアップ実行（認証済み薬剤師のみ推奨）
- */
 export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
@@ -96,41 +93,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. 画像生成（3分割＋ラベル表示）
-    const width = 2500;
-    const height = 843;
-    const sectionWidth = Math.floor(width / 3);
-    const labels = ["処方箋送信", "ホームページ", "メッセージ入力"];
-    const colors = ["#f97316", "#ffffff", "#e5e7eb"];
-
-    const rects = colors
-      .map(
-        (color, i) =>
-          `<rect x="${i * sectionWidth}" y="0" width="${sectionWidth}" height="${height}" fill="${color}"/>`
-      )
-      .join("");
-
-    const texts = labels
-      .map(
-        (label, i) => {
-          const x = i * sectionWidth + sectionWidth / 2;
-          const y = height / 2;
-          const fill = i === 1 ? "#1f2937" : i === 0 ? "#ffffff" : "#374151";
-          return `<text x="${x}" y="${y}" font-family="'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif" font-size="64" font-weight="bold" fill="${fill}" text-anchor="middle" dominant-baseline="middle">${label}</text>`;
-        }
-      )
-      .join("");
-
-    const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        ${rects}
-        ${texts}
-      </svg>
-    `;
-
-    const pngBuffer = await sharp(Buffer.from(svg))
-      .png()
-      .toBuffer();
+    // 2. 事前生成済みのPNG画像を読み込み
+    const pngBuffer = readFileSync(
+      join(process.cwd(), "public", "richmenu.png")
+    );
 
     // 3. 画像アップロード
     const uploadRes = await fetch(
