@@ -13,6 +13,24 @@ export async function GET() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (url && key) {
+    // Test 1: Direct REST API call to PostgREST
+    try {
+      const restUrl = `${url}/rest/v1/tenants?select=id,name&limit=1`;
+      const res = await fetch(restUrl, {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          "Accept-Profile": "terastar_line",
+          Accept: "application/json",
+        },
+      });
+      const body = await res.text();
+      checks["REST_DIRECT"] = `status=${res.status} body=${body.substring(0, 200)}`;
+    } catch (e) {
+      checks["REST_DIRECT"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+    }
+
+    // Test 2: supabase-js .schema() method
     try {
       const supabase = createClient(url, key);
       const { data: tenant, error: tenantErr } = await supabase
@@ -23,40 +41,36 @@ export async function GET() {
         .single();
 
       if (tenantErr) {
-        checks["DB_TENANT"] = `ERROR: ${tenantErr.message} (code: ${tenantErr.code})`;
+        checks["JS_SCHEMA"] = `ERROR: ${tenantErr.message} (code: ${tenantErr.code})`;
       } else if (tenant) {
-        checks["DB_TENANT"] = `OK: ${tenant.name} (${tenant.id})`;
+        checks["JS_SCHEMA"] = `OK: ${tenant.name} (${tenant.id})`;
       } else {
-        checks["DB_TENANT"] = "NO_TENANT";
-      }
-
-      const { count, error: patErr } = await supabase
-        .schema("terastar_line")
-        .from("patients")
-        .select("id", { count: "exact", head: true });
-
-      if (patErr) {
-        checks["DB_PATIENTS"] = `ERROR: ${patErr.message}`;
-      } else {
-        checks["DB_PATIENTS"] = `COUNT: ${count}`;
-      }
-
-      const { data: pending, error: pendErr } = await supabase
-        .schema("terastar_line")
-        .from("line_pending")
-        .select("id, line_user_id, created_at")
-        .limit(10);
-
-      if (pendErr) {
-        checks["DB_LINE_PENDING"] = `ERROR: ${pendErr.message}`;
-      } else {
-        checks["DB_LINE_PENDING"] = `COUNT: ${pending?.length ?? 0}`;
-        if (pending && pending.length > 0) {
-          checks["DB_LINE_PENDING_DATA"] = JSON.stringify(pending);
-        }
+        checks["JS_SCHEMA"] = "NO_DATA";
       }
     } catch (e) {
-      checks["DB_CONNECTION"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+      checks["JS_SCHEMA"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+    }
+
+    // Test 3: supabase-js with db.schema option
+    try {
+      const supabase2 = createClient(url, key, {
+        db: { schema: "terastar_line" },
+      });
+      const { data: tenant2, error: tenantErr2 } = await supabase2
+        .from("tenants")
+        .select("id, name")
+        .limit(1)
+        .single();
+
+      if (tenantErr2) {
+        checks["JS_DB_SCHEMA"] = `ERROR: ${tenantErr2.message} (code: ${tenantErr2.code})`;
+      } else if (tenant2) {
+        checks["JS_DB_SCHEMA"] = `OK: ${tenant2.name} (${tenant2.id})`;
+      } else {
+        checks["JS_DB_SCHEMA"] = "NO_DATA";
+      }
+    } catch (e) {
+      checks["JS_DB_SCHEMA"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
     }
   } else {
     checks["DB_CONNECTION"] = "SKIPPED (missing env vars)";
