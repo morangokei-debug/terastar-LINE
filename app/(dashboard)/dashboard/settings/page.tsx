@@ -24,7 +24,7 @@ export default function SettingsPage() {
             以前（テナント登録前など）に友だち追加した方は、患者一覧に自動登録されていない場合があります。
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-2">
-            <strong>対処法：</strong>該当の方に、一度LINEでブロック解除していただき、再度QRコードから友だち追加してもらってください。新しい友だち追加イベントで患者一覧に登録されます。
+            <strong>対処法：</strong>該当の方に、一度友だち削除していただき、再度QRコードから友だち追加してもらってください。新しい友だち追加イベントで患者一覧に登録されます。
           </p>
           <p className="text-xs text-[var(--text-muted)]">
             または、患者一覧から手動で患者を新規登録し、後からLINEと紐付けることもできます。
@@ -45,15 +45,28 @@ export default function SettingsPage() {
           <p className="text-sm text-[var(--text-muted)] mb-2">
             挨拶がLINE公式アカウントの設定で上書きされている場合、
             <strong>LINE Official Account Manager</strong> → 設定 → 応答設定 → あいさつメッセージを
-            <strong>オフ</strong>にしてください。詳細は
-            <code className="text-xs bg-[var(--bg-tertiary)] px-1 rounded">
-              docs/挨拶メッセージ設定.md
-            </code>
-            を参照。
+            <strong>オフ</strong>にしてください。
           </p>
-          <p className="text-xs text-[var(--text-muted)]">
-            挨拶文の変更は環境変数 <code className="bg-[var(--bg-tertiary)] px-1 rounded">LINE_WELCOME_MESSAGE</code> で可能です。
+          <p className="text-sm text-[var(--text-muted)] mb-2">
+            Vercelの環境変数 <code className="bg-[var(--bg-tertiary)] px-1 rounded">LINE_WELCOME_MESSAGE</code> に以下を設定すると、挨拶文が送信されます。未設定時はコード内のデフォルトが使われます。
           </p>
+          <pre className="text-xs text-[var(--text-secondary)] p-4 rounded-lg overflow-x-auto whitespace-pre-wrap" style={{ backgroundColor: "var(--bg-tertiary)" }}>
+{`友だち追加ありがとうございます！✨
+テラスターファーマシーです。
+
+このLINEでは
+
+・処方箋の事前送信
+・お薬のご相談
+・服用後のフォローアップ
+
+が可能です。
+
+処方箋は写真を撮って
+このトークに送信してください。📷
+
+お薬の準備ができ次第ご連絡いたします。`}
+          </pre>
         </div>
 
         <div

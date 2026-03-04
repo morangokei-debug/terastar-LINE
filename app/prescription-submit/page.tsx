@@ -125,20 +125,40 @@ export default function PrescriptionSubmitPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="image"
-              className="block text-sm font-medium mb-2 text-[var(--text-primary)]"
-            >
+            <label className="block text-sm font-medium mb-2 text-[var(--text-primary)]">
               処方箋の写真（任意）
             </label>
-            <input
-              ref={fileInputRef}
-              id="image"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
-              className="w-full text-sm text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--accent-primary)] file:text-white file:cursor-pointer hover:file:opacity-90"
-            />
+            <div className="flex gap-3">
+              <label className="flex-1 py-2 px-4 rounded-lg text-center text-sm font-medium cursor-pointer transition-opacity hover:opacity-90" style={{ backgroundColor: "var(--accent-primary)", color: "white" }}>
+                カメラで撮る
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) setImage(f);
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+              </label>
+              <label className="flex-1 py-2 px-4 rounded-lg text-center text-sm font-medium cursor-pointer transition-opacity hover:opacity-90 border" style={{ borderColor: "var(--border-color)", color: "var(--text-primary)" }}>
+                アルバムから選ぶ
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+                  className="hidden"
+                />
+              </label>
+            </div>
+            {image && (
+              <p className="mt-2 text-xs text-[var(--color-success)]">
+                ✓ {image.name} を選択しました
+              </p>
+            )}
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               JPEG/PNG/WebP、5MB以下
             </p>
