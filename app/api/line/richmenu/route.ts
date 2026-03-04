@@ -6,10 +6,10 @@ import { join } from "path";
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
 function getBaseUrl(request: NextRequest): string {
-  const vercelUrl = process.env.VERCEL_URL;
-  if (vercelUrl) return `https://${vercelUrl}`;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (siteUrl) return siteUrl;
+  if (siteUrl) return siteUrl.replace(/\/$/, "");
+  const prodUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (prodUrl) return `https://${prodUrl}`;
   const host = request.headers.get("host") || "localhost:3000";
   return host.startsWith("localhost") ? `http://${host}` : `https://${host}`;
 }

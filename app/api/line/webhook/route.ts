@@ -177,6 +177,13 @@ export async function POST(request: NextRequest) {
             line_message_id: msg.id,
           });
         }
+
+        if (msg.text === "お問い合わせ") {
+          await sendPushMessage(
+            lineUserId,
+            "お問い合わせありがとうございます。\nこのトークにメッセージをお送りいただければ、薬剤師が確認次第ご返信いたします。\n\nお気軽にご相談ください💊"
+          );
+        }
       } else if (event.type === "postback") {
         const data = event.postback?.data ?? "";
         const { data: patient } = await supabase
