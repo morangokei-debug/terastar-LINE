@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const { data: tenant } = await supabase
+    let { data: tenant } = await supabase
       .schema("terastar_line")
       .from("tenants")
       .select("id")
@@ -106,7 +106,17 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!tenant) {
-      return NextResponse.json({ ok: true });
+      const { data: inserted, error: insertErr } = await supabase
+        .schema("terastar_line")
+        .from("tenants")
+        .insert({ name: "テラスターファーマシー" })
+        .select("id")
+        .single();
+      if (insertErr || !inserted) {
+        console.warn("[LINE Webhook] tenant insert failed:", insertErr);
+        return NextResponse.json({ ok: true });
+      }
+      tenant = inserted;
     }
 
     for (const event of events) {
