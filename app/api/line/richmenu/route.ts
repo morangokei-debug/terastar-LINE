@@ -56,9 +56,9 @@ export async function GET(request: NextRequest) {
       {
         bounds: { x: 1667, y: 0, width: 833, height: 843 },
         action: {
-          type: "message",
+          type: "postback",
           label: "メッセージ入力",
-          text: "お問い合わせ",
+          data: "message_input",
         },
       },
     ],
@@ -137,6 +137,31 @@ export async function GET(request: NextRequest) {
         { error: `デフォルト設定失敗: ${errText}` },
         { status: 502 }
       );
+    }
+
+    // 5. テナントに rich_menu_id を保存（follow時にユーザーへ即時設定するため）
+    try {
+      const { createClient: createServiceClient } = await import("@supabase/supabase-js");
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (url && key) {
+        const supabaseAdmin = createServiceClient(url, key);
+        const { data: t } = await supabaseAdmin
+          .schema("terastar_line")
+          .from("tenants")
+          .select("id")
+          .limit(1)
+          .single();
+        if (t) {
+          await supabaseAdmin
+            .schema("terastar_line")
+            .from("tenants")
+            .update({ rich_menu_id: richMenuId })
+            .eq("id", t.id);
+        }
+      }
+    } catch (e) {
+      console.warn("[Rich Menu] tenant rich_menu_id update failed (run migration if needed):", e);
     }
 
     return NextResponse.json({

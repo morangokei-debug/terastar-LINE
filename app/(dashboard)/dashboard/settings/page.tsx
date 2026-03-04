@@ -48,6 +48,11 @@ export default function SettingsPage() {
             <strong>オフ</strong>にしてください。
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-2">
+            「問い合わせは受け付けておりません」などの自動応答が出る場合、
+            <strong>応答設定 → 応答メッセージ</strong>を<strong>オフ</strong>にしてください。
+            当システムでメッセージを通常受け付けます。
+          </p>
+          <p className="text-sm text-[var(--text-muted)] mb-2">
             Vercelの環境変数 <code className="bg-[var(--bg-tertiary)] px-1 rounded">LINE_WELCOME_MESSAGE</code> に以下を設定すると、挨拶文が送信されます。未設定時はコード内のデフォルトが使われます。
           </p>
           <pre className="text-xs text-[var(--text-secondary)] p-4 rounded-lg overflow-x-auto whitespace-pre-wrap" style={{ backgroundColor: "var(--bg-tertiary)" }}>

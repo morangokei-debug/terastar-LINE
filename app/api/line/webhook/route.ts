@@ -125,7 +125,31 @@ export async function POST(request: NextRequest) {
       if (!lineUserId) continue;
 
       if (event.type === "follow") {
-        // 既に患者として登録済みか確認
+        // 1. 挨拶メッセージを最優先で送信（DB処理より先に）
+        await sendPushMessage(lineUserId, getWelcomeMessage());
+
+        // 2. リッチメニューをユーザーに即時設定（最初から表示されるように）
+        const { data: tenantFull } = await supabase
+          .schema("terastar_line")
+          .from("tenants")
+          .select("rich_menu_id")
+          .eq("id", tenant.id)
+          .single();
+        if (tenantFull?.rich_menu_id && LINE_CHANNEL_ACCESS_TOKEN) {
+          try {
+            await fetch(
+              `https://api.line.me/v2/bot/user/${lineUserId}/richmenu/${tenantFull.rich_menu_id}`,
+              {
+                method: "POST",
+                headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}` },
+              }
+            );
+          } catch (e) {
+            console.warn("[LINE] rich menu set for user failed:", e);
+          }
+        }
+
+        // 3. 患者として登録
         const { data: existing } = await supabase
           .schema("terastar_line")
           .from("patients")
@@ -135,7 +159,6 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (!existing) {
-          // 未登録なら患者として新規作成（患者一覧に自動表示）
           const now = new Date().toISOString();
           const { error: insertErr } = await supabase
             .schema("terastar_line")
@@ -148,7 +171,6 @@ export async function POST(request: NextRequest) {
             });
           if (insertErr) {
             console.warn("[LINE] patients insert failed:", insertErr.message);
-            // フォールバック: line_pending に保存（手動紐付け用）
             await supabase
               .schema("terastar_line")
               .from("line_pending")
@@ -157,7 +179,6 @@ export async function POST(request: NextRequest) {
                 { onConflict: "tenant_id,line_user_id" }
               );
           } else {
-            // 患者登録成功時、line_pending に残っていれば削除
             await supabase
               .schema("terastar_line")
               .from("line_pending")
@@ -166,12 +187,16 @@ export async function POST(request: NextRequest) {
               .eq("line_user_id", lineUserId);
           }
         }
-        await sendPushMessage(lineUserId, getWelcomeMessage());
       } else if (event.type === "message") {
         const msg = event.message;
-        if (msg?.type !== "text") continue;
+        const isText = msg?.type === "text";
+        const isImage = msg?.type === "image";
+        if (!isText && !isImage) continue;
 
-        const { data: patient } = await supabase
+        const content = isText ? msg.text : "[画像]";
+
+        // 患者がいなければ作成（followが遅れた場合のフォールバック）
+        let { data: patient } = await supabase
           .schema("terastar_line")
           .from("patients")
           .select("id")
@@ -179,24 +204,43 @@ export async function POST(request: NextRequest) {
           .eq("tenant_id", tenant.id)
           .single();
 
+        if (!patient) {
+          const now = new Date().toISOString();
+          const { data: inserted } = await supabase
+            .schema("terastar_line")
+            .from("patients")
+            .insert({
+              tenant_id: tenant.id,
+              name: `LINE（${now.slice(0, 10)}）`,
+              line_user_id: lineUserId,
+              linked_at: now,
+            })
+            .select("id")
+            .single();
+          patient = inserted;
+        }
+
         if (patient) {
           await supabase.schema("terastar_line").from("chat_messages").insert({
             tenant_id: tenant.id,
             patient_id: patient.id,
             sender: "patient",
-            content: msg.text,
+            content,
             line_message_id: msg.id,
           });
         }
-
-        if (msg.text === "お問い合わせ") {
-          await sendPushMessage(
-            lineUserId,
-            "お問い合わせありがとうございます。\nこのトークにメッセージをお送りいただければ、薬剤師が確認次第ご返信いたします。\n\nお気軽にご相談ください💊"
-          );
-        }
       } else if (event.type === "postback") {
         const data = event.postback?.data ?? "";
+
+        // メッセージ入力ボタン押下時：文字入力画面を促す
+        if (data === "message_input") {
+          await sendPushMessage(
+            lineUserId,
+            "お気軽にメッセージをお送りください。\n下の入力欄にご記入の上、送信してください。\n薬剤師が確認次第ご返信いたします。💊"
+          );
+          continue;
+        }
+
         const { data: patient } = await supabase
           .schema("terastar_line")
           .from("patients")

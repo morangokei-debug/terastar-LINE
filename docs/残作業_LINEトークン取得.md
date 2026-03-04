@@ -90,3 +90,14 @@ CREATE POLICY "prescription_images_insert" ON storage.objects
 ```
 
 ※「storage.buckets に INSERT できない」などのエラーが出る場合、Supabase ダッシュボードの **Storage** から手動で `prescription-images` バケットを作成し、公開（Public）に設定してください。
+
+---
+
+### リッチメニュー即時表示用（友だち追加時に最初から表示）
+
+```sql
+ALTER TABLE terastar_line.tenants
+ADD COLUMN IF NOT EXISTS rich_menu_id TEXT;
+```
+
+実行後、**設定** → **リッチメニューを設定する** を再度実行してください。rich_menu_id が保存され、次回以降の友だち追加時にリッチメニューが即時表示されます。
