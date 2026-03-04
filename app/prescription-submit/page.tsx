@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 
 export default function PrescriptionSubmitPage() {
   const [name, setName] = useState("");
   const [memo, setMemo] = useState("");
+  const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -16,10 +18,14 @@ export default function PrescriptionSubmitPage() {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("patient_name", name);
+      if (memo) formData.append("memo", memo);
+      if (image) formData.append("image", image);
+
       const res = await fetch("/api/prescription-requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ patient_name: name, memo: memo || undefined }),
+        body: formData,
       });
 
       if (!res.ok) {
@@ -30,6 +36,8 @@ export default function PrescriptionSubmitPage() {
       setDone(true);
       setName("");
       setMemo("");
+      setImage(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       setError(err instanceof Error ? err.message : "送信に失敗しました");
     } finally {
@@ -114,6 +122,26 @@ export default function PrescriptionSubmitPage() {
               className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] resize-none"
               placeholder="医療機関名、お薬についてなど"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium mb-2 text-[var(--text-primary)]"
+            >
+              処方箋の写真（任意）
+            </label>
+            <input
+              ref={fileInputRef}
+              id="image"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+              className="w-full text-sm text-[var(--text-secondary)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[var(--accent-primary)] file:text-white file:cursor-pointer hover:file:opacity-90"
+            />
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              JPEG/PNG/WebP、5MB以下
+            </p>
           </div>
 
           {error && (

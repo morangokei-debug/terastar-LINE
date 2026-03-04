@@ -22,7 +22,7 @@ export default async function PrescriptionRequestsPage() {
   const { data: requests } = await supabase
     .schema("terastar_line")
     .from("prescription_requests")
-    .select("id, patient_name, memo, created_at")
+    .select("id, patient_name, memo, image_url, created_at")
     .eq("tenant_id", tenant.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -62,6 +62,9 @@ export default async function PrescriptionRequestsPage() {
                   メモ
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
+                  処方箋
+                </th>
+                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
                   送信日時
                 </th>
               </tr>
@@ -75,6 +78,20 @@ export default async function PrescriptionRequestsPage() {
                   <td className="py-4 px-6 font-medium">{r.patient_name}</td>
                   <td className="py-4 px-6 text-[var(--text-secondary)]">
                     {r.memo || "—"}
+                  </td>
+                  <td className="py-4 px-6">
+                    {r.image_url ? (
+                      <a
+                        href={r.image_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[var(--accent-primary)] hover:underline text-sm"
+                      >
+                        画像を表示
+                      </a>
+                    ) : (
+                      <span className="text-[var(--text-muted)]">—</span>
+                    )}
                   </td>
                   <td className="py-4 px-6 text-sm text-[var(--text-muted)]">
                     {new Date(r.created_at).toLocaleString("ja-JP")}

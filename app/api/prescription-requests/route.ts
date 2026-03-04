@@ -8,14 +8,46 @@ function getServiceClient() {
   return createClient(url, key);
 }
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
 /**
  * 患者からの処方箋送信リクエスト（リッチメニュー経由）
  * 認証不要・公開API
+ * FormData: patient_name, memo, image（任意）
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { patient_name, memo, line_user_id } = body;
+    const contentType = request.headers.get("content-type") || "";
+    let patient_name: string;
+    let memo: string | undefined;
+    let imageFile: File | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      patient_name = (formData.get("patient_name") as string) || "";
+      memo = (formData.get("memo") as string) || undefined;
+      const file = formData.get("image") as File | null;
+      if (file && file.size > 0) {
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          return NextResponse.json(
+            { error: "画像はJPEG/PNG/WebPのみ対応しています" },
+            { status: 400 }
+          );
+        }
+        if (file.size > MAX_SIZE) {
+          return NextResponse.json(
+            { error: "画像は5MB以下にしてください" },
+            { status: 400 }
+          );
+        }
+        imageFile = file;
+      }
+    } else {
+      const body = await request.json();
+      patient_name = body.patient_name || "";
+      memo = body.memo;
+    }
 
     if (!patient_name || typeof patient_name !== "string") {
       return NextResponse.json(
@@ -32,7 +64,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: tenant } = await supabase
+    let { data: tenant } = await supabase
       .schema("terastar_line")
       .from("tenants")
       .select("id")
@@ -40,10 +72,44 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!tenant) {
-      return NextResponse.json(
-        { error: "テナントが登録されていません" },
-        { status: 500 }
-      );
+      const { data: inserted, error: insertErr } = await supabase
+        .schema("terastar_line")
+        .from("tenants")
+        .insert({ name: "テラスターファーマシー" })
+        .select("id")
+        .single();
+      if (insertErr || !inserted) {
+        console.error("[prescription-requests] tenant insert failed:", insertErr);
+        return NextResponse.json(
+          { error: "テナントが登録されていません" },
+          { status: 500 }
+        );
+      }
+      tenant = inserted;
+    }
+
+    let image_url: string | null = null;
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop() || "jpg";
+      const path = `${tenant.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const buf = await imageFile.arrayBuffer();
+      const { error: uploadErr } = await supabase.storage
+        .from("prescription-images")
+        .upload(path, buf, {
+          contentType: imageFile.type,
+          upsert: false,
+        });
+      if (uploadErr) {
+        console.error("[prescription-requests] upload failed:", uploadErr);
+        return NextResponse.json(
+          { error: "画像のアップロードに失敗しました" },
+          { status: 500 }
+        );
+      }
+      const { data: urlData } = supabase.storage
+        .from("prescription-images")
+        .getPublicUrl(path);
+      image_url = urlData.publicUrl;
     }
 
     const { error } = await supabase
@@ -51,9 +117,9 @@ export async function POST(request: NextRequest) {
       .from("prescription_requests")
       .insert({
         tenant_id: tenant.id,
-        line_user_id: line_user_id || null,
         patient_name: patient_name.trim(),
         memo: memo?.trim() || null,
+        image_url,
       });
 
     if (error) {
