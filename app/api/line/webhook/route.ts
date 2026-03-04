@@ -117,71 +117,95 @@ function getServiceClient() {
  * - DB保存・患者紐付け（line_user_id で既存患者を検索）
  */
 export async function POST(request: NextRequest) {
+  console.log("[LINE Webhook] === POST received ===");
   try {
     const body = await request.text();
     const signature = request.headers.get("x-line-signature");
+    console.log("[LINE Webhook] body length:", body.length, "signature:", signature ? "present" : "missing");
 
     if (!verifySignature(body, signature)) {
+      console.error("[LINE Webhook] SIGNATURE VERIFICATION FAILED");
+      console.error("[LINE Webhook] LINE_CHANNEL_SECRET set:", !!LINE_CHANNEL_SECRET);
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
+    console.log("[LINE Webhook] signature OK");
 
     const parsed = body ? JSON.parse(body) : {};
     const events = parsed.events;
     if (!events || !Array.isArray(events)) {
+      console.log("[LINE Webhook] no events (verification ping)");
       return NextResponse.json({ ok: true });
     }
+    console.log("[LINE Webhook] events count:", events.length, "types:", events.map((e: { type: string }) => e.type));
 
     const supabase = getServiceClient();
     if (!supabase) {
-      console.warn("[LINE Webhook] Supabase not configured, skipping DB save");
+      console.error("[LINE Webhook] Supabase client could not be created. URL:", !!process.env.NEXT_PUBLIC_SUPABASE_URL, "KEY:", !!process.env.SUPABASE_SERVICE_ROLE_KEY);
       return NextResponse.json({ ok: true });
     }
+    console.log("[LINE Webhook] Supabase client created");
 
-    let { data: tenant } = await supabase
+    const { data: tenant, error: tenantErr } = await supabase
       .schema("terastar_line")
       .from("tenants")
       .select("id")
       .limit(1)
       .single();
 
-    if (!tenant) {
+    console.log("[LINE Webhook] tenant query:", tenant ? `id=${tenant.id}` : "null", "error:", tenantErr?.message ?? "none");
+
+    let activeTenant = tenant;
+    if (!activeTenant) {
       const { data: inserted, error: insertErr } = await supabase
         .schema("terastar_line")
         .from("tenants")
         .insert({ name: "テラスターファーマシー" })
         .select("id")
         .single();
+      console.log("[LINE Webhook] tenant insert:", inserted ? `id=${inserted.id}` : "null", "error:", insertErr?.message ?? "none");
       if (insertErr || !inserted) {
-        console.warn("[LINE Webhook] tenant insert failed:", insertErr);
+        console.error("[LINE Webhook] CANNOT GET OR CREATE TENANT - ABORTING");
         return NextResponse.json({ ok: true });
       }
-      tenant = inserted;
+      activeTenant = inserted;
     }
 
     for (const event of events) {
       const lineUserId = event.source?.userId;
-      if (!lineUserId) continue;
+      if (!lineUserId) {
+        console.log("[LINE Webhook] event has no userId, skipping:", event.type);
+        continue;
+      }
 
       if (event.type === "follow") {
-        // 1. 挨拶メッセージを reply で送信（push より確実・LINE 推奨）
+        console.log("[LINE Webhook] === FOLLOW event === userId:", lineUserId);
+
+        // 1. 挨拶メッセージを reply で送信
         const replyToken = event.replyToken;
+        const welcomeMsg = getWelcomeMessage();
+        console.log("[LINE Webhook] welcomeMsg length:", welcomeMsg.length, "replyToken:", replyToken ? "present" : "missing");
+
         if (replyToken) {
-          const sent = await sendReplyMessage(replyToken, getWelcomeMessage());
+          const sent = await sendReplyMessage(replyToken, welcomeMsg);
+          console.log("[LINE Webhook] reply result:", sent);
           if (!sent) {
-            // reply 失敗時は push にフォールバック
-            await sendPushMessage(lineUserId, getWelcomeMessage());
+            const pushSent = await sendPushMessage(lineUserId, welcomeMsg);
+            console.log("[LINE Webhook] push fallback result:", pushSent);
           }
         } else {
-          await sendPushMessage(lineUserId, getWelcomeMessage());
+          const pushSent = await sendPushMessage(lineUserId, welcomeMsg);
+          console.log("[LINE Webhook] push (no replyToken) result:", pushSent);
         }
 
-        // 2. リッチメニューをユーザーに即時設定（最初から表示されるように）
-        const { data: tenantFull } = await supabase
+        // 2. リッチメニューをユーザーに即時設定
+        const { data: tenantFull, error: tenantFullErr } = await supabase
           .schema("terastar_line")
           .from("tenants")
           .select("rich_menu_id")
-          .eq("id", tenant.id)
+          .eq("id", activeTenant.id)
           .single();
+        console.log("[LINE Webhook] rich_menu_id:", tenantFull?.rich_menu_id ?? "null", "error:", tenantFullErr?.message ?? "none");
+
         if (tenantFull?.rich_menu_id && LINE_CHANNEL_ACCESS_TOKEN) {
           try {
             const rmRes = await fetch(
@@ -191,6 +215,7 @@ export async function POST(request: NextRequest) {
                 headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}` },
               }
             );
+            console.log("[LINE Webhook] rich menu set result:", rmRes.status);
             if (!rmRes.ok) {
               const errText = await rmRes.text();
               console.warn("[LINE] rich menu set for user failed:", rmRes.status, errText);
@@ -199,36 +224,41 @@ export async function POST(request: NextRequest) {
             console.warn("[LINE] rich menu set for user failed:", e);
           }
         } else if (!tenantFull?.rich_menu_id) {
-          console.warn("[LINE] rich_menu_id not set. Run リッチメニューを設定する in dashboard.");
+          console.warn("[LINE] rich_menu_id not set on tenant. Run リッチメニューを設定する in dashboard.");
         }
 
         // 3. 患者として登録
-        const { data: existing } = await supabase
+        const { data: existing, error: existingErr } = await supabase
           .schema("terastar_line")
           .from("patients")
           .select("id")
-          .eq("tenant_id", tenant.id)
+          .eq("tenant_id", activeTenant.id)
           .eq("line_user_id", lineUserId)
           .single();
+        console.log("[LINE Webhook] existing patient:", existing?.id ?? "null", "error:", existingErr?.message ?? "none");
 
         if (!existing) {
           const now = new Date().toISOString();
-          const { error: insertErr } = await supabase
+          const { data: newPatient, error: insertErr } = await supabase
             .schema("terastar_line")
             .from("patients")
             .insert({
-              tenant_id: tenant.id,
+              tenant_id: activeTenant.id,
               name: `LINE友だち追加（${now.slice(0, 10)}）`,
               line_user_id: lineUserId,
               linked_at: now,
-            });
+            })
+            .select("id")
+            .single();
+          console.log("[LINE Webhook] patient insert:", newPatient?.id ?? "null", "error:", insertErr?.message ?? "none");
+
           if (insertErr) {
             console.warn("[LINE] patients insert failed:", insertErr.message);
             await supabase
               .schema("terastar_line")
               .from("line_pending")
               .upsert(
-                { tenant_id: tenant.id, line_user_id: lineUserId },
+                { tenant_id: activeTenant.id, line_user_id: lineUserId },
                 { onConflict: "tenant_id,line_user_id" }
               );
           } else {
@@ -236,10 +266,11 @@ export async function POST(request: NextRequest) {
               .schema("terastar_line")
               .from("line_pending")
               .delete()
-              .eq("tenant_id", tenant.id)
+              .eq("tenant_id", activeTenant.id)
               .eq("line_user_id", lineUserId);
           }
         }
+        console.log("[LINE Webhook] === FOLLOW complete ===");
       } else if (event.type === "message") {
         const msg = event.message;
         const isText = msg?.type === "text";
@@ -254,7 +285,7 @@ export async function POST(request: NextRequest) {
           .from("patients")
           .select("id")
           .eq("line_user_id", lineUserId)
-          .eq("tenant_id", tenant.id)
+          .eq("tenant_id", activeTenant.id)
           .single();
 
         if (!patient) {
@@ -263,7 +294,7 @@ export async function POST(request: NextRequest) {
             .schema("terastar_line")
             .from("patients")
             .insert({
-              tenant_id: tenant.id,
+              tenant_id: activeTenant.id,
               name: `LINE（${now.slice(0, 10)}）`,
               line_user_id: lineUserId,
               linked_at: now,
@@ -275,7 +306,7 @@ export async function POST(request: NextRequest) {
 
         if (patient) {
           await supabase.schema("terastar_line").from("chat_messages").insert({
-            tenant_id: tenant.id,
+            tenant_id: activeTenant.id,
             patient_id: patient.id,
             sender: "patient",
             content,
@@ -299,7 +330,7 @@ export async function POST(request: NextRequest) {
           .from("patients")
           .select("id")
           .eq("line_user_id", lineUserId)
-          .eq("tenant_id", tenant.id)
+          .eq("tenant_id", activeTenant.id)
           .single();
 
         if (patient) {
@@ -313,7 +344,7 @@ export async function POST(request: NextRequest) {
           }
 
           await supabase.schema("terastar_line").from("follow_up_replies").insert({
-            tenant_id: tenant.id,
+            tenant_id: activeTenant.id,
             patient_id: patient.id,
             schedule_id: scheduleId,
             reply_type: "postback",
@@ -343,7 +374,7 @@ export async function POST(request: NextRequest) {
           }
 
           await supabase.schema("terastar_line").from("chat_messages").insert({
-            tenant_id: tenant.id,
+            tenant_id: activeTenant.id,
             patient_id: patient.id,
             sender: "patient",
             content: `【フォロー返信】${replyText}`,

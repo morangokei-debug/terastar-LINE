@@ -6,6 +6,7 @@ export async function GET() {
 
   checks["LINE_CHANNEL_SECRET"] = process.env.LINE_CHANNEL_SECRET ? "SET" : "MISSING";
   checks["LINE_CHANNEL_ACCESS_TOKEN"] = process.env.LINE_CHANNEL_ACCESS_TOKEN ? "SET" : "MISSING";
+  checks["LINE_WELCOME_MESSAGE"] = process.env.LINE_WELCOME_MESSAGE ? `SET (${process.env.LINE_WELCOME_MESSAGE.length} chars)` : "NOT SET (using default)";
   checks["NEXT_PUBLIC_SUPABASE_URL"] = process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING";
   checks["SUPABASE_SERVICE_ROLE_KEY"] = process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "MISSING";
 
@@ -13,64 +14,76 @@ export async function GET() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (url && key) {
-    // Test 1: Direct REST API call to PostgREST
-    try {
-      const restUrl = `${url}/rest/v1/tenants?select=id,name&limit=1`;
-      const res = await fetch(restUrl, {
-        headers: {
-          apikey: key,
-          Authorization: `Bearer ${key}`,
-          "Accept-Profile": "terastar_line",
-          Accept: "application/json",
-        },
-      });
-      const body = await res.text();
-      checks["REST_DIRECT"] = `status=${res.status} body=${body.substring(0, 200)}`;
-    } catch (e) {
-      checks["REST_DIRECT"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
-    }
+    const supabase = createClient(url, key);
 
-    // Test 2: supabase-js .schema() method
+    // Test 1: テナント取得
     try {
-      const supabase = createClient(url, key);
       const { data: tenant, error: tenantErr } = await supabase
         .schema("terastar_line")
         .from("tenants")
-        .select("id, name")
+        .select("id, name, rich_menu_id")
         .limit(1)
         .single();
 
       if (tenantErr) {
-        checks["JS_SCHEMA"] = `ERROR: ${tenantErr.message} (code: ${tenantErr.code})`;
+        checks["TENANT"] = `ERROR: ${tenantErr.message} (code: ${tenantErr.code})`;
       } else if (tenant) {
-        checks["JS_SCHEMA"] = `OK: ${tenant.name} (${tenant.id})`;
+        checks["TENANT"] = `OK: ${tenant.name} (${tenant.id})`;
+        checks["RICH_MENU_ID"] = tenant.rich_menu_id ?? "NOT SET (リッチメニューを設定するボタンを押してください)";
       } else {
-        checks["JS_SCHEMA"] = "NO_DATA";
+        checks["TENANT"] = "NO_DATA";
       }
     } catch (e) {
-      checks["JS_SCHEMA"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+      checks["TENANT"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
     }
 
-    // Test 3: supabase-js with db.schema option
+    // Test 2: 患者数
     try {
-      const supabase2 = createClient(url, key, {
-        db: { schema: "terastar_line" },
-      });
-      const { data: tenant2, error: tenantErr2 } = await supabase2
-        .from("tenants")
-        .select("id, name")
-        .limit(1)
-        .single();
-
-      if (tenantErr2) {
-        checks["JS_DB_SCHEMA"] = `ERROR: ${tenantErr2.message} (code: ${tenantErr2.code})`;
-      } else if (tenant2) {
-        checks["JS_DB_SCHEMA"] = `OK: ${tenant2.name} (${tenant2.id})`;
+      const { count, error } = await supabase
+        .schema("terastar_line")
+        .from("patients")
+        .select("id", { count: "exact", head: true });
+      if (error) {
+        checks["PATIENTS"] = `ERROR: ${error.message}`;
       } else {
-        checks["JS_DB_SCHEMA"] = "NO_DATA";
+        checks["PATIENTS"] = `COUNT: ${count}`;
       }
     } catch (e) {
-      checks["JS_DB_SCHEMA"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+      checks["PATIENTS"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+    }
+
+    // Test 3: LINE API 疎通確認
+    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+    if (token) {
+      try {
+        const res = await fetch("https://api.line.me/v2/bot/info", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const botInfo = await res.json();
+        if (res.ok) {
+          checks["LINE_BOT"] = `OK: ${botInfo.displayName ?? "unknown"} (basicId: ${botInfo.basicId ?? "?"})`;
+        } else {
+          checks["LINE_BOT"] = `ERROR: status=${res.status} ${JSON.stringify(botInfo).substring(0, 200)}`;
+        }
+      } catch (e) {
+        checks["LINE_BOT"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+      }
+
+      // Test 4: Webhook URL 確認
+      try {
+        const res = await fetch("https://api.line.me/v2/bot/channel/webhook/endpoint", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const info = await res.json();
+        if (res.ok) {
+          checks["WEBHOOK_URL"] = info.endpoint ?? "NOT SET";
+          checks["WEBHOOK_ACTIVE"] = String(info.active ?? "unknown");
+        } else {
+          checks["WEBHOOK_URL"] = `ERROR: ${JSON.stringify(info).substring(0, 200)}`;
+        }
+      } catch (e) {
+        checks["WEBHOOK_URL"] = `EXCEPTION: ${e instanceof Error ? e.message : String(e)}`;
+      }
     }
   } else {
     checks["DB_CONNECTION"] = "SKIPPED (missing env vars)";

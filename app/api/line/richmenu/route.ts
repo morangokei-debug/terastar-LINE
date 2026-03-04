@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   const richMenu = {
     size: { width: 2500, height: 843 },
-    selected: false,
+    selected: true,
     name: "メインメニュー",
     chatBarText: "メニュー",
     areas: [
