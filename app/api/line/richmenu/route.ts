@@ -96,20 +96,35 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. 画像生成（3分割: オレンジ・白・グレー）
+    // 2. 画像生成（3分割＋ラベル表示）
     const width = 2500;
     const height = 843;
     const sectionWidth = Math.floor(width / 3);
-
+    const labels = ["処方箋送信", "ホームページ", "メッセージ入力"];
     const colors = ["#f97316", "#ffffff", "#e5e7eb"];
-    const svgParts = colors.map(
-      (color, i) =>
-        `<rect x="${i * sectionWidth}" y="0" width="${sectionWidth}" height="${height}" fill="${color}"/>`
-    );
+
+    const rects = colors
+      .map(
+        (color, i) =>
+          `<rect x="${i * sectionWidth}" y="0" width="${sectionWidth}" height="${height}" fill="${color}"/>`
+      )
+      .join("");
+
+    const texts = labels
+      .map(
+        (label, i) => {
+          const x = i * sectionWidth + sectionWidth / 2;
+          const y = height / 2;
+          const fill = i === 1 ? "#1f2937" : i === 0 ? "#ffffff" : "#374151";
+          return `<text x="${x}" y="${y}" font-family="'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif" font-size="64" font-weight="bold" fill="${fill}" text-anchor="middle" dominant-baseline="middle">${label}</text>`;
+        }
+      )
+      .join("");
 
     const svg = `
       <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        ${svgParts.join("")}
+        ${rects}
+        ${texts}
       </svg>
     `;
 

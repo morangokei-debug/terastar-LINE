@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
-const WELCOME_MESSAGE = `友だち追加ありがとうございます！✨
+const DEFAULT_WELCOME_MESSAGE = `友だち追加ありがとうございます！✨
 テラスターファーマシーです。
 
 このLINEでは
@@ -20,6 +20,11 @@ const WELCOME_MESSAGE = `友だち追加ありがとうございます！✨
 このトークに送信してください。📷
 
 お薬の準備ができ次第ご連絡いたします。`;
+
+function getWelcomeMessage(): string {
+  const env = process.env.LINE_WELCOME_MESSAGE;
+  return env?.trim() || DEFAULT_WELCOME_MESSAGE;
+}
 
 /**
  * LINE プッシュメッセージ送信
@@ -150,7 +155,7 @@ export async function POST(request: NextRequest) {
               .eq("line_user_id", lineUserId);
           }
         }
-        await sendPushMessage(lineUserId, WELCOME_MESSAGE);
+        await sendPushMessage(lineUserId, getWelcomeMessage());
       } else if (event.type === "message") {
         const msg = event.message;
         if (msg?.type !== "text") continue;
