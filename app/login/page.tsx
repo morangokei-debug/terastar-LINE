@@ -43,13 +43,17 @@ export default function LoginPage() {
         }}
       >
         <h1 className="text-2xl font-bold mb-6 text-center">
-          テラスター薬局 LINEフォローアップ
+          テラスターファーマシー LINEフォローアップ
         </h1>
         <p className="text-sm text-[var(--text-secondary)] mb-8 text-center">
           薬剤師用ログイン
         </p>
 
-        <p className="mb-6 text-center text-sm text-[var(--text-muted)]">
+        <p className="mb-6 text-center text-sm text-[var(--text-muted)] space-x-4">
+          <a href="/welcome" className="hover:text-[var(--accent-primary)]">
+            患者の方はLINE友だち追加
+          </a>
+          <span>|</span>
           <a href="/login/signup" className="hover:text-[var(--accent-primary)]">
             初めての方はアカウント作成
           </a>

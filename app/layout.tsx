@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "テラスター薬局 LINEフォローアップ",
+  title: "テラスターファーマシー LINEフォローアップ",
   description: "調剤薬局向けLINEフォローアップサービス",
 };
 

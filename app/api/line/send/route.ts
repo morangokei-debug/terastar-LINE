@@ -2,9 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
 
+type LineMessage = {
+  type: string;
+  text?: string;
+  quickReply?: {
+    items: {
+      type: "action";
+      action: { type: string; label: string; data?: string; text?: string };
+    }[];
+  };
+  [key: string]: unknown;
+};
+
 /**
  * LINE プッシュメッセージ送信 API
- * 内部からのみ呼び出し（認証済みユーザー経由）
+ * - message (string) を渡すとテキストメッセージを送信
+ * - messages (LineMessage[]) を渡すと任意のメッセージオブジェクトを送信
  */
 export async function POST(request: NextRequest) {
   if (!LINE_CHANNEL_ACCESS_TOKEN) {
@@ -16,11 +29,27 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { userId, message } = body;
+    const { userId, message, messages } = body as {
+      userId: string;
+      message?: string;
+      messages?: LineMessage[];
+    };
 
-    if (!userId || !message) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "userId と message が必要です" },
+        { error: "userId が必要です" },
+        { status: 400 }
+      );
+    }
+
+    let lineMessages: LineMessage[];
+    if (messages && Array.isArray(messages) && messages.length > 0) {
+      lineMessages = messages;
+    } else if (message) {
+      lineMessages = [{ type: "text", text: message }];
+    } else {
+      return NextResponse.json(
+        { error: "message または messages が必要です" },
         { status: 400 }
       );
     }
@@ -33,7 +62,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         to: userId,
-        messages: [{ type: "text", text: message }],
+        messages: lineMessages,
       }),
     });
 

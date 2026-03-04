@@ -30,31 +30,47 @@ export default async function ChatPage() {
   const { data: recentMessages } = await supabase
     .schema("terastar_line")
     .from("chat_messages")
-    .select("patient_id, created_at")
+    .select("patient_id, sender, content, created_at, read_at")
     .eq("tenant_id", tenant.id)
     .order("created_at", { ascending: false });
 
-  const lastByPatient = new Map<string, Date>();
+  const lastByPatient = new Map<
+    string,
+    { date: Date; content: string; sender: string }
+  >();
+  const unreadByPatient = new Map<string, number>();
+
   for (const m of recentMessages ?? []) {
     if (!lastByPatient.has(m.patient_id)) {
-      lastByPatient.set(m.patient_id, new Date(m.created_at));
+      lastByPatient.set(m.patient_id, {
+        date: new Date(m.created_at),
+        content: m.content,
+        sender: m.sender,
+      });
+    }
+    if (m.sender === "patient" && !m.read_at) {
+      unreadByPatient.set(
+        m.patient_id,
+        (unreadByPatient.get(m.patient_id) ?? 0) + 1
+      );
     }
   }
 
   const withLast = (patients ?? []).map((p) => ({
     ...p,
     lastMessage: lastByPatient.get(p.id),
+    unread: unreadByPatient.get(p.id) ?? 0,
   }));
   withLast.sort((a, b) => {
-    const da = a.lastMessage?.getTime() ?? 0;
-    const db = b.lastMessage?.getTime() ?? 0;
+    const da = a.lastMessage?.date.getTime() ?? 0;
+    const db = b.lastMessage?.date.getTime() ?? 0;
     return db - da;
   });
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">チャット</h1>
-      <p className="text-[var(--text-muted)] mb-6">
+      <h1 className="text-2xl font-bold mb-2">チャット</h1>
+      <p className="text-[var(--text-muted)] mb-6 text-sm">
         LINE紐付け済みの患者とのやり取りを表示します。
       </p>
 
@@ -83,16 +99,36 @@ export default async function ChatPage() {
               key={p.id}
               href={`/dashboard/chat/${p.id}`}
               className="block px-6 py-4 hover:bg-[var(--bg-tertiary)] transition-colors"
-              style={{ borderBottom: "1px solid var(--border-color)" }}
+              style={{
+                borderBottom: "1px solid var(--border-color)",
+                backgroundColor:
+                  p.unread > 0 ? "rgba(0, 188, 212, 0.04)" : undefined,
+              }}
             >
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{p.name}</span>
+              <div className="flex justify-between items-center mb-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{p.name}</span>
+                  {p.unread > 0 && (
+                    <span
+                      className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold text-white"
+                      style={{ backgroundColor: "var(--color-error)" }}
+                    >
+                      {p.unread}
+                    </span>
+                  )}
+                </div>
                 {p.lastMessage && (
-                  <span className="text-sm text-[var(--text-muted)]">
-                    {p.lastMessage.toLocaleString("ja-JP")}
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {p.lastMessage.date.toLocaleString("ja-JP")}
                   </span>
                 )}
               </div>
+              {p.lastMessage && (
+                <p className="text-sm text-[var(--text-muted)] truncate">
+                  {p.lastMessage.sender === "pharmacist" ? "あなた: " : ""}
+                  {p.lastMessage.content}
+                </p>
+              )}
             </Link>
           ))}
         </div>

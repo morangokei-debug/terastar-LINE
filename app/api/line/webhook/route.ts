@@ -3,6 +3,47 @@ import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
 
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
+const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
+const WELCOME_MESSAGE = `友だち追加ありがとうございます！✨
+テラスターファーマシーです。
+
+このLINEでは
+
+・処方箋の事前送信
+・お薬のご相談
+・服用後のフォローアップ
+
+が可能です。
+
+処方箋は写真を撮って
+このトークに送信してください。📷
+
+お薬の準備ができ次第ご連絡いたします。`;
+
+/**
+ * LINE プッシュメッセージ送信
+ */
+async function sendPushMessage(userId: string, text: string): Promise<boolean> {
+  if (!LINE_CHANNEL_ACCESS_TOKEN) return false;
+  try {
+    const res = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        to: userId,
+        messages: [{ type: "text", text }],
+      }),
+    });
+    return res.ok;
+  } catch (e) {
+    console.warn("[LINE Webhook] sendPushMessage failed:", e);
+    return false;
+  }
+}
 
 /**
  * LINE Webhook 署名検証
@@ -68,16 +109,48 @@ export async function POST(request: NextRequest) {
       if (!lineUserId) continue;
 
       if (event.type === "follow") {
-        const { error: pendingErr } = await supabase
+        // 既に患者として登録済みか確認
+        const { data: existing } = await supabase
           .schema("terastar_line")
-          .from("line_pending")
-          .upsert(
-            { tenant_id: tenant.id, line_user_id: lineUserId },
-            { onConflict: "tenant_id,line_user_id" }
-          );
-        if (pendingErr) {
-          console.warn("[LINE] line_pending upsert failed:", pendingErr.message);
+          .from("patients")
+          .select("id")
+          .eq("tenant_id", tenant.id)
+          .eq("line_user_id", lineUserId)
+          .single();
+
+        if (!existing) {
+          // 未登録なら患者として新規作成（患者一覧に自動表示）
+          const now = new Date().toISOString();
+          const { error: insertErr } = await supabase
+            .schema("terastar_line")
+            .from("patients")
+            .insert({
+              tenant_id: tenant.id,
+              name: `LINE友だち追加（${now.slice(0, 10)}）`,
+              line_user_id: lineUserId,
+              linked_at: now,
+            });
+          if (insertErr) {
+            console.warn("[LINE] patients insert failed:", insertErr.message);
+            // フォールバック: line_pending に保存（手動紐付け用）
+            await supabase
+              .schema("terastar_line")
+              .from("line_pending")
+              .upsert(
+                { tenant_id: tenant.id, line_user_id: lineUserId },
+                { onConflict: "tenant_id,line_user_id" }
+              );
+          } else {
+            // 患者登録成功時、line_pending に残っていれば削除
+            await supabase
+              .schema("terastar_line")
+              .from("line_pending")
+              .delete()
+              .eq("tenant_id", tenant.id)
+              .eq("line_user_id", lineUserId);
+          }
         }
+        await sendPushMessage(lineUserId, WELCOME_MESSAGE);
       } else if (event.type === "message") {
         const msg = event.message;
         if (msg?.type !== "text") continue;
@@ -110,11 +183,50 @@ export async function POST(request: NextRequest) {
           .single();
 
         if (patient) {
+          let scheduleId: string | null = null;
+          let replyText = data;
+
+          if (data.startsWith("followup_reply:")) {
+            const parts = data.split(":");
+            scheduleId = parts[1] ?? null;
+            replyText = parts.slice(2).join(":");
+          }
+
           await supabase.schema("terastar_line").from("follow_up_replies").insert({
             tenant_id: tenant.id,
             patient_id: patient.id,
+            schedule_id: scheduleId,
             reply_type: "postback",
-            reply_text: data,
+            reply_text: replyText,
+          });
+
+          if (scheduleId) {
+            const { data: schedule } = await supabase
+              .schema("terastar_line")
+              .from("follow_up_schedules")
+              .select("pattern_id")
+              .eq("id", scheduleId)
+              .single();
+
+            if (schedule?.pattern_id) {
+              const { data: pattern } = await supabase
+                .schema("terastar_line")
+                .from("follow_up_patterns")
+                .select("reply_thank_message")
+                .eq("id", schedule.pattern_id)
+                .single();
+
+              if (pattern?.reply_thank_message) {
+                await sendPushMessage(lineUserId, pattern.reply_thank_message);
+              }
+            }
+          }
+
+          await supabase.schema("terastar_line").from("chat_messages").insert({
+            tenant_id: tenant.id,
+            patient_id: patient.id,
+            sender: "patient",
+            content: `【フォロー返信】${replyText}`,
           });
         }
       }

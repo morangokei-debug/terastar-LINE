@@ -11,6 +11,9 @@ export function PatternForm() {
     "{患者名}様、{薬名}をお渡ししてから{日数}日経ちました。体調はいかがですか？"
   );
   const [replyOptions, setReplyOptions] = useState("とても良い,良い,普通,悪い,とても悪い");
+  const [replyThankMessage, setReplyThankMessage] = useState(
+    "ご回答ありがとうございます。気になることがあればお気軽にご連絡ください。"
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -48,6 +51,7 @@ export function PatternForm() {
         days_after: parseInt(daysAfter, 10) || 3,
         message_template: messageTemplate.trim() || null,
         reply_options: options,
+        reply_thank_message: replyThankMessage.trim() || null,
       });
 
     setLoading(false);
@@ -124,6 +128,26 @@ export function PatternForm() {
           className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
           placeholder="とても良い,良い,普通,悪い,とても悪い"
         />
+        <p className="text-xs text-[var(--text-muted)] mt-1">
+          患者のLINEにボタンとして表示されます（最大13個）
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="replyThankMessage" className="block text-sm font-medium mb-2 text-[var(--text-primary)]">
+          返信後のお礼メッセージ
+        </label>
+        <textarea
+          id="replyThankMessage"
+          rows={2}
+          value={replyThankMessage}
+          onChange={(e) => setReplyThankMessage(e.target.value)}
+          className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
+          placeholder="ご回答ありがとうございます。気になることがあればお気軽にご連絡ください。"
+        />
+        <p className="text-xs text-[var(--text-muted)] mt-1">
+          患者が返信した後に自動で送られるメッセージです
+        </p>
       </div>
 
       {error && (

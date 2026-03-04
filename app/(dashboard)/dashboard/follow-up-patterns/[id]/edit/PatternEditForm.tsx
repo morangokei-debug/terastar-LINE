@@ -24,6 +24,9 @@ export function PatternEditForm({ pattern }: { pattern: Pattern }) {
       ? pattern.reply_options.join(",")
       : ""
   );
+  const [replyThankMessage, setReplyThankMessage] = useState(
+    pattern.reply_thank_message ?? ""
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -47,6 +50,7 @@ export function PatternEditForm({ pattern }: { pattern: Pattern }) {
         days_after: parseInt(daysAfter, 10) || 3,
         message_template: messageTemplate.trim() || null,
         reply_options: options,
+        reply_thank_message: replyThankMessage.trim() || null,
       })
       .eq("id", pattern.id);
 
@@ -122,6 +126,26 @@ export function PatternEditForm({ pattern }: { pattern: Pattern }) {
           onChange={(e) => setReplyOptions(e.target.value)}
           className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
         />
+        <p className="text-xs text-[var(--text-muted)] mt-1">
+          患者のLINEにボタンとして表示されます（最大13個）
+        </p>
+      </div>
+
+      <div>
+        <label htmlFor="replyThankMessage" className="block text-sm font-medium mb-2 text-[var(--text-primary)]">
+          返信後のお礼メッセージ
+        </label>
+        <textarea
+          id="replyThankMessage"
+          rows={2}
+          value={replyThankMessage}
+          onChange={(e) => setReplyThankMessage(e.target.value)}
+          className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
+          placeholder="ご回答ありがとうございます。気になることがあればお気軽にご連絡ください。"
+        />
+        <p className="text-xs text-[var(--text-muted)] mt-1">
+          患者が返信した後に自動で送られるメッセージです
+        </p>
       </div>
 
       {error && (

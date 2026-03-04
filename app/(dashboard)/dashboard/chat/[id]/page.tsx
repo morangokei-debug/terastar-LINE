@@ -27,6 +27,14 @@ export default async function ChatDetailPage({
     .eq("patient_id", id)
     .order("created_at", { ascending: true });
 
+  await supabase
+    .schema("terastar_line")
+    .from("chat_messages")
+    .update({ read_at: new Date().toISOString() })
+    .eq("patient_id", id)
+    .eq("sender", "patient")
+    .is("read_at", null);
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">

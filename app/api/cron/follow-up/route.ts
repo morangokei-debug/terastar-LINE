@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     .schema("terastar_line")
     .from("follow_up_schedules")
     .select(
-      "id, patient_id, pattern_id, drug_names, scheduled_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template)"
+      "id, patient_id, pattern_id, drug_names, scheduled_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options)"
     )
     .is("sent_at", null)
     .gte("scheduled_at", todayStart.toISOString())
@@ -51,18 +51,48 @@ export async function GET(request: NextRequest) {
 
     if (!patient?.line_user_id) continue;
 
-    let message = pattern?.message_template ?? "{患者名}様、体調はいかがですか？";
-    message = message
+    let text = pattern?.message_template ?? "{患者名}様、体調はいかがですか？";
+    text = text
       .replace(/{患者名}/g, patient.name ?? "患者")
       .replace(/{薬名}/g, Array.isArray(s.drug_names) ? s.drug_names.join("、") : "")
       .replace(/{日数}/g, String(pattern?.days_after ?? 0));
+
+    const replyOptions: string[] = Array.isArray(pattern?.reply_options)
+      ? pattern.reply_options
+      : [];
+
+    type LineMessage = {
+      type: string;
+      text: string;
+      quickReply?: {
+        items: {
+          type: "action";
+          action: { type: string; label: string; data: string };
+        }[];
+      };
+    };
+
+    const lineMessage: LineMessage = { type: "text", text };
+
+    if (replyOptions.length > 0) {
+      lineMessage.quickReply = {
+        items: replyOptions.slice(0, 13).map((opt) => ({
+          type: "action" as const,
+          action: {
+            type: "postback",
+            label: opt.slice(0, 20),
+            data: `followup_reply:${s.id}:${opt}`,
+          },
+        })),
+      };
+    }
 
     const res = await fetch(`${baseUrl}/api/line/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: patient.line_user_id,
-        message,
+        messages: [lineMessage],
       }),
     });
 

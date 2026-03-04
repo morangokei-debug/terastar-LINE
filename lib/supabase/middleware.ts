@@ -29,13 +29,23 @@ export async function updateSession(request: NextRequest) {
 
   const { data } = await supabase.auth.getUser();
 
-  // 未ログイン時: /login, /login/signup, / 以外は /login へリダイレクト
-  if (
-    !data.user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/auth") &&
-    request.nextUrl.pathname !== "/"
-  ) {
+  // 未ログイン時: 許可パス以外は /login へリダイレクト
+  const allowedPaths = [
+    "/",
+    "/welcome",
+    "/prescription-submit",
+    "/login",
+    "/auth",
+  ];
+  const isAllowed =
+    allowedPaths.some((p) => request.nextUrl.pathname === p) ||
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/auth") ||
+    request.nextUrl.pathname === "/api/prescription-requests" ||
+    request.nextUrl.pathname === "/api/line/webhook" ||
+    request.nextUrl.pathname.startsWith("/api/cron");
+
+  if (!data.user && !isAllowed) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
