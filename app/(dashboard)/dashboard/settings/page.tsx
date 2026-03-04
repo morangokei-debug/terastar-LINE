@@ -43,9 +43,10 @@ export default function SettingsPage() {
         >
           <h3 className="font-medium mb-2">友だち追加時の挨拶文</h3>
           <p className="text-sm text-[var(--text-muted)] mb-2">
-            挨拶がLINE公式アカウントの設定で上書きされている場合、
-            <strong>LINE Official Account Manager</strong> → 設定 → 応答設定 → あいさつメッセージを
-            <strong>オフ</strong>にしてください。
+            <strong>挨拶が出ない場合の確認：</strong>
+            <strong>LINE Official Account Manager</strong> → 設定 → 応答設定で、
+            <strong>あいさつメッセージ</strong>を<strong>オフ</strong>にしてください。
+            オンのままだとLINE側の設定が優先され、当システムの挨拶が届かないことがあります。
           </p>
           <p className="text-sm text-[var(--text-muted)] mb-2">
             「問い合わせは受け付けておりません」などの自動応答が出る場合、

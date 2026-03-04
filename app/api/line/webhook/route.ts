@@ -28,7 +28,40 @@ function getWelcomeMessage(): string {
 }
 
 /**
- * LINE プッシュメッセージ送信
+ * LINE リプライメッセージ送信（Webhook イベントへの応答・推奨）
+ * follow イベントでは reply の方が確実に届く
+ */
+async function sendReplyMessage(
+  replyToken: string,
+  text: string
+): Promise<boolean> {
+  if (!LINE_CHANNEL_ACCESS_TOKEN || !replyToken) return false;
+  try {
+    const res = await fetch("https://api.line.me/v2/bot/message/reply", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        replyToken,
+        messages: [{ type: "text", text }],
+      }),
+    });
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn("[LINE Webhook] sendReplyMessage failed:", res.status, errText);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn("[LINE Webhook] sendReplyMessage failed:", e);
+    return false;
+  }
+}
+
+/**
+ * LINE プッシュメッセージ送信（postback 等で使用）
  */
 async function sendPushMessage(userId: string, text: string): Promise<boolean> {
   if (!LINE_CHANNEL_ACCESS_TOKEN) return false;
@@ -44,7 +77,12 @@ async function sendPushMessage(userId: string, text: string): Promise<boolean> {
         messages: [{ type: "text", text }],
       }),
     });
-    return res.ok;
+    if (!res.ok) {
+      const errText = await res.text();
+      console.warn("[LINE Webhook] sendPushMessage failed:", res.status, errText);
+      return false;
+    }
+    return true;
   } catch (e) {
     console.warn("[LINE Webhook] sendPushMessage failed:", e);
     return false;
@@ -125,8 +163,17 @@ export async function POST(request: NextRequest) {
       if (!lineUserId) continue;
 
       if (event.type === "follow") {
-        // 1. 挨拶メッセージを最優先で送信（DB処理より先に）
-        await sendPushMessage(lineUserId, getWelcomeMessage());
+        // 1. 挨拶メッセージを reply で送信（push より確実・LINE 推奨）
+        const replyToken = event.replyToken;
+        if (replyToken) {
+          const sent = await sendReplyMessage(replyToken, getWelcomeMessage());
+          if (!sent) {
+            // reply 失敗時は push にフォールバック
+            await sendPushMessage(lineUserId, getWelcomeMessage());
+          }
+        } else {
+          await sendPushMessage(lineUserId, getWelcomeMessage());
+        }
 
         // 2. リッチメニューをユーザーに即時設定（最初から表示されるように）
         const { data: tenantFull } = await supabase
@@ -137,16 +184,22 @@ export async function POST(request: NextRequest) {
           .single();
         if (tenantFull?.rich_menu_id && LINE_CHANNEL_ACCESS_TOKEN) {
           try {
-            await fetch(
+            const rmRes = await fetch(
               `https://api.line.me/v2/bot/user/${lineUserId}/richmenu/${tenantFull.rich_menu_id}`,
               {
                 method: "POST",
                 headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}` },
               }
             );
+            if (!rmRes.ok) {
+              const errText = await rmRes.text();
+              console.warn("[LINE] rich menu set for user failed:", rmRes.status, errText);
+            }
           } catch (e) {
             console.warn("[LINE] rich menu set for user failed:", e);
           }
+        } else if (!tenantFull?.rich_menu_id) {
+          console.warn("[LINE] rich_menu_id not set. Run リッチメニューを設定する in dashboard.");
         }
 
         // 3. 患者として登録
