@@ -29,8 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   const baseUrl = getBaseUrl(request);
-  const homepageUrl =
-    process.env.NEXT_PUBLIC_PHARMACY_HOMEPAGE_URL || "https://try-arrows.org/";
+  const homepageUrl = "https://try-arrows.org/";
 
   const richMenu = {
     size: { width: 2500, height: 843 },
