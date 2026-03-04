@@ -6,6 +6,7 @@ import {
   Bell,
   Calendar,
   MessageSquare,
+  ClipboardList,
 } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -25,6 +26,7 @@ export default async function DashboardPage() {
   let uncheckedReplies = 0;
   let pendingSchedules = 0;
   let unreadChats = 0;
+  let prescriptionRequestsCount = 0;
 
   if (tenantId) {
     const now = new Date();
@@ -37,6 +39,7 @@ export default async function DashboardPage() {
       repliesRes,
       schedulesRes,
       chatsRes,
+      rxRequestsRes,
     ] = await Promise.all([
       supabase
         .schema("terastar_line")
@@ -74,6 +77,11 @@ export default async function DashboardPage() {
         .eq("tenant_id", tenantId)
         .eq("sender", "patient")
         .is("read_at", null),
+      supabase
+        .schema("terastar_line")
+        .from("prescription_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId),
     ]);
 
     patientsCount = patientsRes.count ?? 0;
@@ -82,6 +90,7 @@ export default async function DashboardPage() {
     uncheckedReplies = repliesRes.count ?? 0;
     pendingSchedules = schedulesRes.count ?? 0;
     unreadChats = chatsRes.count ?? 0;
+    prescriptionRequestsCount = rxRequestsRes.count ?? 0;
   }
 
   const cards = [
@@ -91,6 +100,17 @@ export default async function DashboardPage() {
       value: patientsCount,
       icon: Users,
       color: "var(--accent-primary)",
+    },
+    {
+      href: "/dashboard/prescription-requests",
+      label: "処方箋リクエスト",
+      value: prescriptionRequestsCount,
+      icon: ClipboardList,
+      color:
+        prescriptionRequestsCount > 0
+          ? "var(--color-warning)"
+          : "var(--text-muted)",
+      highlight: prescriptionRequestsCount > 0,
     },
     {
       href: "/dashboard/prescriptions",
