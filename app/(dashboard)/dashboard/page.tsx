@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
   Users,
-  FileText,
   Bell,
   Calendar,
   MessageSquare,
@@ -21,8 +20,6 @@ export default async function DashboardPage() {
   const tenantId = tenantData?.id;
 
   let patientsCount = 0;
-  let prescriptionsCount = 0;
-  let preparingCount = 0;
   let uncheckedReplies = 0;
   let pendingSchedules = 0;
   let unreadChats = 0;
@@ -34,8 +31,6 @@ export default async function DashboardPage() {
 
     const [
       patientsRes,
-      prescriptionsRes,
-      preparingRes,
       repliesRes,
       schedulesRes,
       chatsRes,
@@ -46,17 +41,6 @@ export default async function DashboardPage() {
         .from("patients")
         .select("id", { count: "exact", head: true })
         .eq("tenant_id", tenantId),
-      supabase
-        .schema("terastar_line")
-        .from("prescriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("tenant_id", tenantId),
-      supabase
-        .schema("terastar_line")
-        .from("prescriptions")
-        .select("id", { count: "exact", head: true })
-        .eq("tenant_id", tenantId)
-        .eq("status", "preparing"),
       supabase
         .schema("terastar_line")
         .from("follow_up_replies")
@@ -85,8 +69,6 @@ export default async function DashboardPage() {
     ]);
 
     patientsCount = patientsRes.count ?? 0;
-    prescriptionsCount = prescriptionsRes.count ?? 0;
-    preparingCount = preparingRes.count ?? 0;
     uncheckedReplies = repliesRes.count ?? 0;
     pendingSchedules = schedulesRes.count ?? 0;
     unreadChats = chatsRes.count ?? 0;
@@ -111,15 +93,6 @@ export default async function DashboardPage() {
           ? "var(--color-warning)"
           : "var(--text-muted)",
       highlight: prescriptionRequestsCount > 0,
-    },
-    {
-      href: "/dashboard/prescriptions",
-      label: "処方箋（総数）",
-      value: prescriptionsCount,
-      icon: FileText,
-      color: "var(--accent-primary)",
-      sub: preparingCount > 0 ? `準備中 ${preparingCount}件` : undefined,
-      subColor: "var(--color-warning)",
     },
     {
       href: "/dashboard/follow-up-replies",
@@ -199,14 +172,6 @@ export default async function DashboardPage() {
               >
                 {card.value}
               </p>
-              {card.sub && (
-                <p
-                  className="mt-1 text-xs font-medium"
-                  style={{ color: card.subColor ?? "var(--text-muted)" }}
-                >
-                  {card.sub}
-                </p>
-              )}
             </Link>
           );
         })}

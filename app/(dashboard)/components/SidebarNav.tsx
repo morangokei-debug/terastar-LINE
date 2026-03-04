@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  FileText,
   ClipboardList,
   Pill,
   MessageSquare,
@@ -18,7 +17,6 @@ import {
 const navItems = [
   { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
   { href: "/dashboard/patients", label: "患者一覧", icon: Users },
-  { href: "/dashboard/prescriptions", label: "処方箋一覧", icon: FileText },
   { href: "/dashboard/follow-up-patterns", label: "フォローアップパターン", icon: ClipboardList },
   { href: "/dashboard/handover", label: "薬渡し入力", icon: Pill },
   { href: "/dashboard/follow-up-replies", label: "フォロー返信", icon: Bell },

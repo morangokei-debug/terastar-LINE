@@ -20,19 +20,6 @@ export default async function PatientDetailPage({
 
   if (!patient) notFound();
 
-  const { data: prescriptions } = await supabase
-    .schema("terastar_line")
-    .from("prescriptions")
-    .select("id, status, received_at, pharmacy_name, drug_names, created_at")
-    .eq("patient_id", id)
-    .order("received_at", { ascending: false });
-
-  const statusLabel: Record<string, string> = {
-    received: "受付",
-    preparing: "準備中",
-    completed: "完了",
-  };
-
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -77,69 +64,6 @@ export default async function PatientDetailPage({
         </dl>
         <LineLinkForm patientId={patient.id} hasLine={!!patient.line_user_id} />
       </div>
-
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-medium text-[var(--text-secondary)]">処方箋履歴</h2>
-        <Link
-          href={`/dashboard/prescriptions/new?patient=${patient.id}`}
-          className="px-4 py-2 rounded-lg text-sm font-medium"
-          style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
-        >
-          処方箋を登録
-        </Link>
-      </div>
-
-      {!prescriptions?.length ? (
-        <p className="text-[var(--text-muted)] py-8">処方箋はまだありません</p>
-      ) : (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-          }}
-        >
-          <table className="w-full">
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
-                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">受付日</th>
-                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">ステータス</th>
-                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">処方元</th>
-                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">薬名</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prescriptions.map((p) => (
-                <tr
-                  key={p.id}
-                  style={{ borderBottom: "1px solid var(--border-color)" }}
-                >
-                  <td className="py-4 px-6">
-                    <Link
-                      href={`/dashboard/prescriptions/${p.id}`}
-                      className="hover:underline"
-                      style={{ color: "var(--accent-primary)" }}
-                    >
-                      {p.received_at
-                        ? new Date(p.received_at).toLocaleString("ja-JP")
-                        : "—"}
-                    </Link>
-                  </td>
-                  <td className="py-4 px-6">{statusLabel[p.status] ?? p.status}</td>
-                  <td className="py-4 px-6 text-[var(--text-secondary)]">
-                    {p.pharmacy_name ?? "—"}
-                  </td>
-                  <td className="py-4 px-6 text-sm">
-                    {Array.isArray(p.drug_names) && p.drug_names.length > 0
-                      ? p.drug_names.join("、")
-                      : "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
     </div>
   );
 }
