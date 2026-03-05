@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
 
 export default async function PrescriptionRequestsPage() {
   const supabase = await createClient();
@@ -19,20 +18,41 @@ export default async function PrescriptionRequestsPage() {
     );
   }
 
-  const { data: requests } = await supabase
+  const { data: requests, error } = await supabase
     .schema("terastar_line")
     .from("prescription_requests")
-    .select("id, patient_name, memo, image_url, created_at")
+    .select("id, patient_name, memo, image_url, birth_date, created_at")
     .eq("tenant_id", tenant.id)
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (error) {
+    console.error("[prescription-requests]", error);
+  }
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-8">処方箋送信リクエスト</h1>
       <p className="text-sm text-[var(--text-muted)] mb-6">
-        リッチメニュー「処方箋送信」から患者が送信した内容です。患者登録・処方箋登録の参考にしてください。
+        リッチメニュー「処方箋送信」から患者が送信した内容です。
       </p>
+
+      {error && (
+        <div
+          className="p-4 rounded-xl mb-6"
+          style={{
+            backgroundColor: "rgba(252, 129, 129, 0.1)",
+            border: "1px solid var(--color-error)",
+          }}
+        >
+          <p className="text-sm text-[var(--color-error)]">
+            データ取得エラー: {error.message}
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mt-1">
+            Supabaseで prescription_requests テーブルのマイグレーションが実行済みか確認してください。
+          </p>
+        </div>
+      )}
 
       {!requests || requests.length === 0 ? (
         <div
@@ -59,6 +79,9 @@ export default async function PrescriptionRequestsPage() {
                   お名前
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
+                  生年月日
+                </th>
+                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
                   メモ
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
@@ -76,6 +99,9 @@ export default async function PrescriptionRequestsPage() {
                   style={{ borderBottom: "1px solid var(--border-color)" }}
                 >
                   <td className="py-4 px-6 font-medium">{r.patient_name}</td>
+                  <td className="py-4 px-6 text-sm text-[var(--text-secondary)]">
+                    {r.birth_date || "—"}
+                  </td>
                   <td className="py-4 px-6 text-[var(--text-secondary)]">
                     {r.memo || "—"}
                   </td>
@@ -94,7 +120,11 @@ export default async function PrescriptionRequestsPage() {
                     )}
                   </td>
                   <td className="py-4 px-6 text-sm text-[var(--text-muted)]">
-                    {new Date(r.created_at).toLocaleString("ja-JP")}
+                    {r.created_at
+                      ? new Date(r.created_at).toLocaleString("ja-JP", {
+                          timeZone: "Asia/Tokyo",
+                        })
+                      : "—"}
                   </td>
                 </tr>
               ))}
