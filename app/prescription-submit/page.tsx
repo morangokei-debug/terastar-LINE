@@ -63,12 +63,22 @@ export default function PrescriptionSubmitPage() {
             <br />
             お薬のご用意ができましたらLINEでお知らせします。
           </p>
-          <Link
-            href="/welcome"
+          <button
+            onClick={() => {
+              try {
+                window.close();
+              } catch {
+                // LINE内ブラウザで window.close() が効かない場合
+              }
+              // LINE LIFF の閉じ方、または履歴を戻す
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+              }
+            }}
             className="text-sm text-[var(--accent-primary)] hover:underline"
           >
-            トップに戻る
-          </Link>
+            LINEに戻る
+          </button>
         </div>
       </div>
     );
