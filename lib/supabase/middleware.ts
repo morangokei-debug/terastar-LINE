@@ -40,6 +40,7 @@ export async function updateSession(request: NextRequest) {
   ];
   const isAllowed =
     allowedPaths.some((p) => request.nextUrl.pathname === p) ||
+    request.nextUrl.pathname.startsWith("/manual") ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname === "/api/prescription-requests" ||
