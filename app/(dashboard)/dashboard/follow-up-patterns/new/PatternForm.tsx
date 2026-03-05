@@ -11,6 +11,10 @@ export function PatternForm() {
     "{患者名}様、{薬名}をお渡ししてから{日数}日経ちました。体調はいかがですか？"
   );
   const [replyOptions, setReplyOptions] = useState("とても良い,良い,普通,悪い,とても悪い");
+  const [freeTextPrompt, setFreeTextPrompt] = useState(
+    "気になる症状や伝えたいことがあればご記入ください。"
+  );
+  const [freeTextEnabled, setFreeTextEnabled] = useState(true);
   const [replyThankMessage, setReplyThankMessage] = useState(
     "ご回答ありがとうございます。気になることがあればお気軽にご連絡ください。"
   );
@@ -51,6 +55,7 @@ export function PatternForm() {
         days_after: parseInt(daysAfter, 10) || 3,
         message_template: messageTemplate.trim() || null,
         reply_options: options,
+        free_text_prompt: freeTextEnabled ? (freeTextPrompt.trim() || null) : null,
         reply_thank_message: replyThankMessage.trim() || null,
       });
 
@@ -131,6 +136,39 @@ export function PatternForm() {
         <p className="text-xs text-[var(--text-muted)] mt-1">
           患者のLINEにボタンとして表示されます（最大13個）
         </p>
+      </div>
+
+      <div>
+        <div className="flex items-center gap-3 mb-2">
+          <input
+            id="freeTextEnabled"
+            type="checkbox"
+            checked={freeTextEnabled}
+            onChange={(e) => setFreeTextEnabled(e.target.checked)}
+            className="w-5 h-5 rounded"
+          />
+          <label htmlFor="freeTextEnabled" className="text-sm font-medium text-[var(--text-primary)]">
+            自由入力欄を追加する
+          </label>
+        </div>
+        {freeTextEnabled && (
+          <div className="mt-2">
+            <label htmlFor="freeTextPrompt" className="block text-sm font-medium mb-2 text-[var(--text-primary)]">
+              自由入力の案内文
+            </label>
+            <input
+              id="freeTextPrompt"
+              type="text"
+              value={freeTextPrompt}
+              onChange={(e) => setFreeTextPrompt(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)]"
+              placeholder="気になる症状や伝えたいことがあればご記入ください。"
+            />
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              選択肢の後にこの文言が表示され、患者が直接テキストで入力できます
+            </p>
+          </div>
+        )}
       </div>
 
       <div>

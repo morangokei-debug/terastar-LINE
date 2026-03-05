@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     .schema("terastar_line")
     .from("follow_up_schedules")
     .select(
-      "id, patient_id, pattern_id, drug_names, scheduled_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options)"
+      "id, patient_id, pattern_id, drug_names, scheduled_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options, free_text_prompt)"
     )
     .is("sent_at", null)
     .gte("scheduled_at", todayStart.toISOString())
@@ -96,6 +96,12 @@ export async function GET(request: NextRequest) {
       };
     }
 
+    const messages: LineMessage[] = [lineMessage];
+    const freeTextPrompt = (pattern as { free_text_prompt?: string })?.free_text_prompt;
+    if (freeTextPrompt) {
+      messages.push({ type: "text", text: freeTextPrompt });
+    }
+
     const res = await fetch("https://api.line.me/v2/bot/message/push", {
       method: "POST",
       headers: {
@@ -104,7 +110,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         to: patient.line_user_id,
-        messages: [lineMessage],
+        messages,
       }),
     });
 

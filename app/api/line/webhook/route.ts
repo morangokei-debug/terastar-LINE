@@ -324,6 +324,55 @@ export async function POST(request: NextRequest) {
         }
 
         if (patient) {
+          if (isText) {
+            const { data: recentSchedule } = await supabase
+              .schema("terastar_line")
+              .from("follow_up_schedules")
+              .select("id, pattern_id")
+              .eq("patient_id", patient.id)
+              .not("sent_at", "is", null)
+              .order("sent_at", { ascending: false })
+              .limit(1)
+              .single();
+
+            if (recentSchedule) {
+              const { data: existingReply } = await supabase
+                .schema("terastar_line")
+                .from("follow_up_replies")
+                .select("id")
+                .eq("schedule_id", recentSchedule.id)
+                .eq("reply_type", "text")
+                .limit(1)
+                .single();
+
+              if (!existingReply) {
+                await supabase
+                  .schema("terastar_line")
+                  .from("follow_up_replies")
+                  .insert({
+                    tenant_id: activeTenant.id,
+                    patient_id: patient.id,
+                    schedule_id: recentSchedule.id,
+                    reply_type: "text",
+                    reply_text: msg.text,
+                  });
+
+                if (recentSchedule.pattern_id) {
+                  const { data: patternData } = await supabase
+                    .schema("terastar_line")
+                    .from("follow_up_patterns")
+                    .select("reply_thank_message")
+                    .eq("id", recentSchedule.pattern_id)
+                    .single();
+
+                  if (patternData?.reply_thank_message) {
+                    await sendPushMessage(lineUserId, patternData.reply_thank_message);
+                  }
+                }
+              }
+            }
+          }
+
           await supabase.schema("terastar_line").from("chat_messages").insert({
             tenant_id: activeTenant.id,
             patient_id: patient.id,
