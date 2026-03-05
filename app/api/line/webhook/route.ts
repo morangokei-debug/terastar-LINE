@@ -101,6 +101,16 @@ function verifySignature(body: string, signature: string | null): boolean {
   return hash === signature;
 }
 
+function getBaseUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) return siteUrl.replace(/\/$/, "");
+  const prodUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (prodUrl) return `https://${prodUrl}`;
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) return `https://${vercelUrl}`;
+  return "https://terastar-line.vercel.app";
+}
+
 /**
  * Supabase サービスロール（Webhook は認証なしで呼ばれるため）
  */
@@ -270,6 +280,15 @@ export async function POST(request: NextRequest) {
               .eq("line_user_id", lineUserId);
           }
         }
+
+        // 4. 名前登録の案内メッセージを送信
+        const registerUrl = `${getBaseUrl()}/register?uid=${lineUserId}`;
+        await sendPushMessage(
+          lineUserId,
+          `お名前の登録をお願いします。\n次回から処方箋送信時に自動入力されます。\n\n${registerUrl}`
+        );
+        console.log("[LINE Webhook] register URL sent:", registerUrl);
+
         console.log("[LINE Webhook] === FOLLOW complete ===");
       } else if (event.type === "message") {
         const msg = event.message;
@@ -315,6 +334,16 @@ export async function POST(request: NextRequest) {
         }
       } else if (event.type === "postback") {
         const data = event.postback?.data ?? "";
+
+        // 処方箋送信ボタン押下時：uid付きURLを送信
+        if (data === "prescription_submit") {
+          const prescriptionUrl = `${getBaseUrl()}/prescription-submit?uid=${lineUserId}`;
+          await sendPushMessage(
+            lineUserId,
+            `こちらから処方箋を送信できます。\n\n${prescriptionUrl}`
+          );
+          continue;
+        }
 
         // メッセージ入力ボタン押下時：文字入力画面を促す
         if (data === "message_input") {

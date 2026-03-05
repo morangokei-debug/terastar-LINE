@@ -1,16 +1,35 @@
 "use client";
 
-import { useState, useRef } from "react";
-import Link from "next/link";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function PrescriptionSubmitPage() {
+function PrescriptionForm() {
+  const searchParams = useSearchParams();
+  const uid = searchParams.get("uid") ?? "";
+
   const [name, setName] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [memo, setMemo] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!uid) return;
+    fetch(`/api/patient-info?line_user_id=${encodeURIComponent(uid)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.name) {
+          setName(data.name);
+          setPrefilled(true);
+        }
+        if (data.birth_date) setBirthDate(data.birth_date);
+      })
+      .catch(() => {});
+  }, [uid]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,8 +39,10 @@ export default function PrescriptionSubmitPage() {
     try {
       const formData = new FormData();
       formData.append("patient_name", name);
+      if (birthDate) formData.append("birth_date", birthDate);
       if (memo) formData.append("memo", memo);
       if (image) formData.append("image", image);
+      if (uid) formData.append("line_user_id", uid);
 
       const res = await fetch("/api/prescription-requests", {
         method: "POST",
@@ -35,6 +56,7 @@ export default function PrescriptionSubmitPage() {
 
       setDone(true);
       setName("");
+      setBirthDate("");
       setMemo("");
       setImage(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -65,12 +87,7 @@ export default function PrescriptionSubmitPage() {
           </p>
           <button
             onClick={() => {
-              try {
-                window.close();
-              } catch {
-                // LINE内ブラウザで window.close() が効かない場合
-              }
-              // LINE LIFF の閉じ方、または履歴を戻す
+              try { window.close(); } catch {}
               if (typeof window !== "undefined" && window.history.length > 1) {
                 window.history.back();
               }
@@ -114,6 +131,27 @@ export default function PrescriptionSubmitPage() {
               required
               className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
               placeholder="山田 太郎"
+            />
+            {prefilled && (
+              <p className="mt-1 text-xs text-[var(--color-success)]">
+                前回の登録情報から入力しました
+              </p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="birthDate"
+              className="block text-sm font-medium mb-2 text-[var(--text-primary)]"
+            >
+              生年月日
+            </label>
+            <input
+              id="birthDate"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
             />
           </div>
 
@@ -166,7 +204,7 @@ export default function PrescriptionSubmitPage() {
             </div>
             {image && (
               <p className="mt-2 text-xs text-[var(--color-success)]">
-                ✓ {image.name} を選択しました
+                {image.name} を選択しました
               </p>
             )}
             <p className="mt-1 text-xs text-[var(--text-muted)]">
@@ -195,5 +233,17 @@ export default function PrescriptionSubmitPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function PrescriptionSubmitPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-[var(--text-muted)]">読み込み中...</p>
+      </div>
+    }>
+      <PrescriptionForm />
+    </Suspense>
   );
 }

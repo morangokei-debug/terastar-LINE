@@ -40,9 +40,9 @@ export async function GET(request: NextRequest) {
       {
         bounds: { x: 0, y: 0, width: 833, height: 843 },
         action: {
-          type: "uri",
+          type: "postback",
           label: "処方箋送信",
-          uri: `${baseUrl}/prescription-submit`,
+          data: "prescription_submit",
         },
       },
       {

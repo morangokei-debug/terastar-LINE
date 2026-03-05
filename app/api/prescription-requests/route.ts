@@ -21,12 +21,16 @@ export async function POST(request: NextRequest) {
     const contentType = request.headers.get("content-type") || "";
     let patient_name: string;
     let memo: string | undefined;
+    let birth_date: string | undefined;
+    let line_user_id: string | undefined;
     let imageFile: File | null = null;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       patient_name = (formData.get("patient_name") as string) || "";
       memo = (formData.get("memo") as string) || undefined;
+      birth_date = (formData.get("birth_date") as string) || undefined;
+      line_user_id = (formData.get("line_user_id") as string) || undefined;
       const file = formData.get("image") as File | null;
       if (file && file.size > 0) {
         if (!ALLOWED_TYPES.includes(file.type)) {
@@ -47,6 +51,8 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       patient_name = body.patient_name || "";
       memo = body.memo;
+      birth_date = body.birth_date;
+      line_user_id = body.line_user_id;
     }
 
     if (!patient_name || typeof patient_name !== "string") {
@@ -119,6 +125,8 @@ export async function POST(request: NextRequest) {
         tenant_id: tenant.id,
         patient_name: patient_name.trim(),
         memo: memo?.trim() || null,
+        birth_date: birth_date || null,
+        line_user_id: line_user_id || null,
         image_url,
       });
 
