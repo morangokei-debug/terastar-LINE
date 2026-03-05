@@ -51,7 +51,7 @@ function RegisterForm() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
         <div
-          className="w-full max-w-md p-8 rounded-2xl text-center"
+          className="w-full max-w-md p-8 rounded-2xl text-center relative"
           style={{
             backgroundColor: "var(--bg-secondary)",
             border: "1px solid var(--border-color)",
@@ -67,8 +67,20 @@ function RegisterForm() {
           </p>
           <a
             href="https://line.me/R/nv/chat"
-            className="inline-block w-full py-3 px-4 rounded-lg font-medium text-center"
-            style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+            onClick={(e) => {
+              e.preventDefault();
+              try {
+                window.close();
+              } catch {}
+              window.location.href = "https://line.me/R/nv/chat";
+            }}
+            className="inline-block w-full py-4 px-4 rounded-lg font-medium text-center cursor-pointer select-none active:opacity-90 relative z-10"
+            style={{
+              backgroundColor: "var(--accent-primary)",
+              color: "white",
+              minHeight: 48,
+              touchAction: "manipulation",
+            }}
           >
             LINEに戻る
           </a>
