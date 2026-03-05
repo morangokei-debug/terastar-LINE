@@ -65,17 +65,13 @@ function RegisterForm() {
             <br />
             次回からお名前が自動入力されます。
           </p>
-          <button
-            onClick={() => {
-              try { window.close(); } catch {}
-              if (typeof window !== "undefined" && window.history.length > 1) {
-                window.history.back();
-              }
-            }}
-            className="text-sm text-[var(--accent-primary)] hover:underline"
+          <a
+            href="https://line.me/R/nv/chat"
+            className="inline-block w-full py-3 px-4 rounded-lg font-medium text-center"
+            style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
           >
             LINEに戻る
-          </button>
+          </a>
         </div>
       </div>
     );
