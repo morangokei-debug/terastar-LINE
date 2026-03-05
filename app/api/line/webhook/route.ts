@@ -394,11 +394,6 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // キーボードを表示ボタン押下時：何も送らず入力欄にフォーカスさせる（メッセージ送信は行わない）
-        if (data === "message_input") {
-          continue;
-        }
-
         const { data: patient } = await supabase
           .schema("terastar_line")
           .from("patients")

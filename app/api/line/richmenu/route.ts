@@ -46,19 +46,11 @@ export async function GET(request: NextRequest) {
         },
       },
       {
-        bounds: { x: 833, y: 0, width: 834, height: 843 },
+        bounds: { x: 833, y: 0, width: 1667, height: 843 },
         action: {
           type: "uri",
           label: "ホームページ",
           uri: homepageUrl,
-        },
-      },
-      {
-        bounds: { x: 1667, y: 0, width: 833, height: 843 },
-        action: {
-          type: "postback",
-          label: "キーボードを表示",
-          data: "message_input",
         },
       },
     ],
