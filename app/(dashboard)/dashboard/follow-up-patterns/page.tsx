@@ -13,7 +13,7 @@ export default async function FollowUpPatternsPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォローアップパターン</h1>
+        <h1 className="text-2xl font-bold mb-8">フォローアップ設定</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -29,7 +29,7 @@ export default async function FollowUpPatternsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">フォローアップパターン</h1>
+        <h1 className="text-2xl font-bold">フォローアップ設定</h1>
         <Link
           href="/dashboard/follow-up-patterns/new"
           className="px-4 py-2 rounded-lg font-medium transition-all hover:scale-[0.99] active:scale-[0.97]"

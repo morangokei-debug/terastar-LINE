@@ -17,12 +17,12 @@ import {
 const navItems = [
   { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
   { href: "/dashboard/patients", label: "患者一覧", icon: Users },
-  { href: "/dashboard/follow-up-patterns", label: "フォローアップパターン", icon: ClipboardList },
-  { href: "/dashboard/handover", label: "薬渡し入力", icon: Pill },
-  { href: "/dashboard/follow-up-replies", label: "フォロー返信", icon: Bell },
+  { href: "/dashboard/follow-up-patterns", label: "フォローアップ設定", icon: ClipboardList },
+  { href: "/dashboard/handover", label: "フォローアップ登録", icon: Pill },
+  { href: "/dashboard/follow-up-replies", label: "フォローアップ返信", icon: Bell },
   { href: "/dashboard/chat", label: "チャット", icon: MessageSquare },
   { href: "/dashboard/broadcast", label: "一斉送信", icon: Megaphone },
-  { href: "/dashboard/prescription-requests", label: "処方箋リクエスト", icon: Inbox },
+  { href: "/dashboard/prescription-requests", label: "受信処方箋", icon: Inbox },
   { href: "/dashboard/settings", label: "設定", icon: Settings },
 ];
 

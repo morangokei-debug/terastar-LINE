@@ -12,7 +12,7 @@ export default async function PrescriptionRequestsPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">処方箋送信リクエスト</h1>
+        <h1 className="text-2xl font-bold mb-8">受信処方箋</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -32,9 +32,9 @@ export default async function PrescriptionRequestsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">処方箋送信リクエスト</h1>
+      <h1 className="text-2xl font-bold mb-8">受信処方箋</h1>
       <p className="text-sm text-[var(--text-muted)] mb-6">
-        リッチメニュー「処方箋送信」から患者が送信した内容です。
+        LINEから患者が送信した処方箋の一覧です。
       </p>
 
       {error && (

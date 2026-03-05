@@ -85,7 +85,7 @@ export default async function DashboardPage() {
     },
     {
       href: "/dashboard/prescription-requests",
-      label: "処方箋リクエスト",
+      label: "受信処方箋",
       value: prescriptionRequestsCount,
       icon: ClipboardList,
       color:

@@ -14,7 +14,7 @@ export default async function HandoverSchedulesPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォロー送信予定</h1>
+        <h1 className="text-2xl font-bold mb-8">フォローアップ送信予定</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -47,13 +47,13 @@ export default async function HandoverSchedulesPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">フォロー送信予定</h1>
+        <h1 className="text-2xl font-bold">フォローアップ送信予定</h1>
         <Link
           href="/dashboard/handover"
           className="px-4 py-2 rounded-lg font-medium"
           style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
         >
-          薬渡し入力
+          フォローアップ登録
         </Link>
       </div>
 
@@ -71,7 +71,7 @@ export default async function HandoverSchedulesPage() {
             className="inline-block px-6 py-3 rounded-lg font-medium"
             style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
           >
-            薬渡しを登録する
+            フォローアップを登録する
           </Link>
         </div>
       ) : (

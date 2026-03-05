@@ -167,7 +167,7 @@ export function HandoverForm({
             border: "1px solid var(--border-color)",
           }}
         >
-          予定一覧
+          送信予定一覧
         </Link>
       </div>
     </form>
