@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { ScheduleRow } from "./ScheduleRow";
 
 export default async function HandoverSchedulesPage() {
   const supabase = await createClient();
@@ -29,7 +30,19 @@ export default async function HandoverSchedulesPage() {
     .is("sent_at", null)
     .order("scheduled_at", { ascending: true });
 
-  const pending = schedules ?? [];
+  const pending = (schedules ?? []).map((s) => {
+    const patient = Array.isArray(s.patients) ? s.patients[0] : s.patients;
+    const pattern = Array.isArray(s.follow_up_patterns)
+      ? s.follow_up_patterns[0]
+      : s.follow_up_patterns;
+    return {
+      id: s.id,
+      scheduled_at: s.scheduled_at,
+      drug_names: s.drug_names,
+      patientName: (patient as { name?: string })?.name ?? "—",
+      patternName: (pattern as { name?: string })?.name ?? "—",
+    };
+  });
 
   return (
     <div>
@@ -73,43 +86,16 @@ export default async function HandoverSchedulesPage() {
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">患者名</th>
-                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">送信予定日</th>
+                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">送信予定日時</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">パターン</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">薬名</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">状態</th>
               </tr>
             </thead>
             <tbody>
-              {pending.map((s) => {
-                const patient = Array.isArray(s.patients) ? s.patients[0] : s.patients;
-                const pattern = Array.isArray(s.follow_up_patterns) ? s.follow_up_patterns[0] : s.follow_up_patterns;
-                return (
-                <tr
-                  key={s.id}
-                  style={{ borderBottom: "1px solid var(--border-color)" }}
-                >
-                  <td className="py-4 px-6">
-                    {patient?.name ?? "—"}
-                  </td>
-                  <td className="py-4 px-6">
-                    {s.scheduled_at
-                      ? new Date(s.scheduled_at).toLocaleString("ja-JP")
-                      : "—"}
-                  </td>
-                  <td className="py-4 px-6 text-[var(--text-secondary)]">
-                    {pattern?.name ?? "—"}
-                  </td>
-                  <td className="py-4 px-6 text-sm">
-                    {Array.isArray(s.drug_names) && s.drug_names.length > 0
-                      ? s.drug_names.join("、")
-                      : "—"}
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="text-[var(--color-warning)]">未送信</span>
-                  </td>
-                </tr>
-              );
-              })}
+              {pending.map((s) => (
+                <ScheduleRow key={s.id} schedule={s} />
+              ))}
             </tbody>
           </table>
         </div>
