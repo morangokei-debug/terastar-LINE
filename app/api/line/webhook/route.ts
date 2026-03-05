@@ -394,12 +394,8 @@ export async function POST(request: NextRequest) {
           continue;
         }
 
-        // メッセージ入力ボタン押下時：文字入力画面を促す
+        // キーボードを表示ボタン押下時：何も送らず入力欄にフォーカスさせる（メッセージ送信は行わない）
         if (data === "message_input") {
-          await sendPushMessage(
-            lineUserId,
-            "お気軽にメッセージをお送りください。\n下の入力欄にご記入の上、送信してください。\n薬剤師が確認次第ご返信いたします。💊"
-          );
           continue;
         }
 
