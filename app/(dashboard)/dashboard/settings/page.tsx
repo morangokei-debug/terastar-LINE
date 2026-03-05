@@ -1,5 +1,6 @@
 import { RichMenuSetup } from "./RichMenuSetup";
 import { LineQrCode } from "./LineQrCode";
+import { NotificationRegister } from "./NotificationRegister";
 
 export default function SettingsPage() {
   return (
@@ -10,6 +11,7 @@ export default function SettingsPage() {
 
       <div className="space-y-6">
         <LineQrCode />
+        <NotificationRegister />
 
         <div
           className="rounded-xl p-6"

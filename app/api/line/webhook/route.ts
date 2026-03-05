@@ -298,6 +298,41 @@ export async function POST(request: NextRequest) {
 
         const content = isText ? msg.text : "[画像]";
 
+        // 通知先登録：「通知登録 コード」で登録
+        if (isText && /^通知登録\s+(\S+)$/.test(msg.text.trim())) {
+          const match = msg.text.trim().match(/^通知登録\s+(\S+)$/);
+          const token = match?.[1]?.toUpperCase();
+          if (token) {
+            const svc = getServiceClient();
+            if (svc) {
+              const { data: t } = await svc
+                .schema("terastar_line")
+                .from("tenants")
+                .select("id")
+                .eq("notification_register_token", token)
+                .gt("notification_register_token_expires_at", new Date().toISOString())
+                .limit(1)
+                .single();
+              if (t) {
+                await svc
+                  .schema("terastar_line")
+                  .from("tenants")
+                  .update({
+                    notification_line_user_id: lineUserId,
+                    notification_register_token: null,
+                    notification_register_token_expires_at: null,
+                  })
+                  .eq("id", t.id);
+                await sendReplyMessage(
+                  event.replyToken ?? "",
+                  "通知先として登録しました。処方箋が届くとこのアカウントに通知が届きます。"
+                );
+                continue;
+              }
+            }
+          }
+        }
+
         // 患者がいなければ作成（followが遅れた場合のフォールバック）
         let { data: patient } = await supabase
           .schema("terastar_line")

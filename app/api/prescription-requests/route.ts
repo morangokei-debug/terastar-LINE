@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     let { data: tenant } = await supabase
       .schema("terastar_line")
       .from("tenants")
-      .select("id")
+      .select("id, notification_line_user_id")
       .limit(1)
       .single();
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
         .schema("terastar_line")
         .from("tenants")
         .insert({ name: "テラスターファーマシー" })
-        .select("id")
+        .select("id, notification_line_user_id")
         .single();
       if (insertErr || !inserted) {
         console.error("[prescription-requests] tenant insert failed:", insertErr);
@@ -136,6 +136,40 @@ export async function POST(request: NextRequest) {
         { error: "送信に失敗しました" },
         { status: 500 }
       );
+    }
+
+    // 通知先が登録されていればLINEプッシュ通知
+    const { data: tenantForNotify } = await supabase
+      .schema("terastar_line")
+      .from("tenants")
+      .select("notification_line_user_id")
+      .eq("id", tenant!.id)
+      .single();
+    const notifyUserId = tenantForNotify?.notification_line_user_id;
+    const lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+    if (notifyUserId && lineToken) {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+        (process.env.VERCEL_PROJECT_PRODUCTION_URL
+          ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+          : "https://terastar-line.vercel.app");
+      const dashboardUrl = `${baseUrl}/dashboard/prescription-requests`;
+      const notifyText = `⚠️ 新しい処方箋が届きました\n\n患者名: ${patient_name.trim()}\n\n確認: ${dashboardUrl}`;
+      try {
+        await fetch("https://api.line.me/v2/bot/message/push", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${lineToken}`,
+          },
+          body: JSON.stringify({
+            to: notifyUserId,
+            messages: [{ type: "text", text: notifyText }],
+          }),
+        });
+      } catch (e) {
+        console.warn("[prescription-requests] notify failed:", e);
+      }
     }
 
     return NextResponse.json({ ok: true });
