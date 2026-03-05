@@ -34,6 +34,7 @@ export async function updateSession(request: NextRequest) {
     "/",
     "/welcome",
     "/prescription-submit",
+    "/register",
     "/login",
     "/auth",
   ];
@@ -42,6 +43,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname === "/api/prescription-requests" ||
+    request.nextUrl.pathname === "/api/register" ||
+    request.nextUrl.pathname === "/api/patient-info" ||
     request.nextUrl.pathname.startsWith("/api/line/webhook") ||
     request.nextUrl.pathname.startsWith("/api/cron");
 
