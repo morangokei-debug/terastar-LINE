@@ -13,7 +13,7 @@ export default async function HandoverPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォローアップ登録</h1>
+        <h1 className="text-2xl font-bold mb-8">フォローアップ実施入力</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -36,7 +36,7 @@ export default async function HandoverPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">フォローアップ登録</h1>
+      <h1 className="text-2xl font-bold mb-8">フォローアップ実施入力</h1>
       <p className="text-[var(--text-muted)] mb-6">
         患者に薬を渡したときに入力すると、フォローアップ送信が予約されます。
       </p>

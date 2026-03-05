@@ -53,7 +53,7 @@ export default async function HandoverSchedulesPage() {
           className="px-4 py-2 rounded-lg font-medium"
           style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
         >
-          フォローアップ登録
+          フォローアップ実施入力
         </Link>
       </div>
 
@@ -71,7 +71,7 @@ export default async function HandoverSchedulesPage() {
             className="inline-block px-6 py-3 rounded-lg font-medium"
             style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
           >
-            フォローアップを登録する
+            フォローアップを入力する
           </Link>
         </div>
       ) : (

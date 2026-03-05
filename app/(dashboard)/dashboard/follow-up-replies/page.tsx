@@ -13,7 +13,7 @@ export default async function FollowUpRepliesPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォローアップ返信</h1>
+        <h1 className="text-2xl font-bold mb-8">フォローアップ返信内容確認</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -69,7 +69,7 @@ export default async function FollowUpRepliesPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">フォローアップ返信</h1>
+      <h1 className="text-2xl font-bold mb-2">フォローアップ返信内容確認</h1>
       <p className="text-sm text-[var(--text-muted)] mb-8">
         フォローアップに対する患者からの返信一覧です。
       </p>

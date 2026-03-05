@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         bounds: { x: 1667, y: 0, width: 833, height: 843 },
         action: {
           type: "postback",
-          label: "メッセージ入力",
+          label: "キーボードを表示",
           data: "message_input",
         },
       },

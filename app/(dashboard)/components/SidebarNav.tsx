@@ -17,9 +17,9 @@ import {
 const navItems = [
   { href: "/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
   { href: "/dashboard/patients", label: "患者一覧", icon: Users },
-  { href: "/dashboard/follow-up-patterns", label: "フォローアップ設定", icon: ClipboardList },
-  { href: "/dashboard/handover", label: "フォローアップ登録", icon: Pill },
-  { href: "/dashboard/follow-up-replies", label: "フォローアップ返信", icon: Bell },
+  { href: "/dashboard/follow-up-patterns", label: "フォローアップ文例・登録", icon: ClipboardList },
+  { href: "/dashboard/handover", label: "フォローアップ実施入力", icon: Pill },
+  { href: "/dashboard/follow-up-replies", label: "フォローアップ返信内容確認", icon: Bell },
   { href: "/dashboard/chat", label: "チャット", icon: MessageSquare },
   { href: "/dashboard/broadcast", label: "一斉送信", icon: Megaphone },
   { href: "/dashboard/prescription-requests", label: "受信処方箋", icon: Inbox },
