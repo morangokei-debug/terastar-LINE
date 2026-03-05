@@ -23,10 +23,15 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createClient(url, key);
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(todayStart);
-  todayEnd.setDate(todayEnd.getDate() + 1);
+
+  const jstOffset = 9 * 60 * 60 * 1000;
+  const nowUtc = Date.now();
+  const jstDate = new Date(nowUtc + jstOffset);
+  const y = jstDate.getUTCFullYear();
+  const m = jstDate.getUTCMonth();
+  const d = jstDate.getUTCDate();
+  const todayStart = new Date(Date.UTC(y, m, d) - jstOffset);
+  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
   const { data: schedules } = await supabase
     .schema("terastar_line")
@@ -38,9 +43,13 @@ export async function GET(request: NextRequest) {
     .gte("scheduled_at", todayStart.toISOString())
     .lt("scheduled_at", todayEnd.toISOString());
 
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const lineToken = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+  if (!lineToken) {
+    return NextResponse.json(
+      { error: "LINE_CHANNEL_ACCESS_TOKEN not configured" },
+      { status: 500 }
+    );
+  }
 
   let sent = 0;
   for (const s of schedules ?? []) {
@@ -87,11 +96,14 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    const res = await fetch(`${baseUrl}/api/line/send`, {
+    const res = await fetch("https://api.line.me/v2/bot/message/push", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${lineToken}`,
+      },
       body: JSON.stringify({
-        userId: patient.line_user_id,
+        to: patient.line_user_id,
         messages: [lineMessage],
       }),
     });
@@ -103,6 +115,9 @@ export async function GET(request: NextRequest) {
         .update({ sent_at: new Date().toISOString() })
         .eq("id", s.id);
       sent++;
+    } else {
+      const errBody = await res.text();
+      console.error("[cron follow-up]", s.id, res.status, errBody);
     }
   }
 

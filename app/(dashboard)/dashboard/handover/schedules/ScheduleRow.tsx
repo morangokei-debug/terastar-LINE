@@ -23,26 +23,30 @@ function toLocalDatetime(iso: string): string {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
 }
 
+function formatJST(iso: string): string {
+  return new Date(iso).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+}
+
 export function ScheduleRow({ schedule }: Props) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(
     schedule.scheduled_at ? toLocalDatetime(schedule.scheduled_at) : ""
   );
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleSave() {
     if (!value) return;
     setSaving(true);
-
     const isoDate = new Date(value).toISOString();
-
     const res = await fetch(`/api/follow-up-schedules/${schedule.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ scheduled_at: isoDate }),
     });
-
     setSaving(false);
     if (res.ok) {
       setEditing(false);
@@ -50,12 +54,52 @@ export function ScheduleRow({ schedule }: Props) {
     }
   }
 
+  async function handleSendNow() {
+    if (!confirm("このフォローアップメッセージを今すぐLINEで送信しますか？")) return;
+    setSending(true);
+    setSendError(null);
+    const res = await fetch(
+      `/api/follow-up-schedules/${schedule.id}/send`,
+      { method: "POST" }
+    );
+    setSending(false);
+    if (res.ok) {
+      setSent(true);
+      router.refresh();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setSendError(data.error ?? "送信に失敗しました");
+    }
+  }
+
+  if (sent) {
+    return (
+      <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+        <td className="py-4 px-6">{schedule.patientName}</td>
+        <td className="py-4 px-6">
+          {schedule.scheduled_at ? formatJST(schedule.scheduled_at) : "—"}
+        </td>
+        <td className="py-4 px-6 text-[var(--text-secondary)]">
+          {schedule.patternName}
+        </td>
+        <td className="py-4 px-6 text-sm">
+          {Array.isArray(schedule.drug_names) && schedule.drug_names.length > 0
+            ? schedule.drug_names.join("、")
+            : "—"}
+        </td>
+        <td className="py-4 px-6">
+          <span className="text-[var(--color-success)] font-medium">送信済み</span>
+        </td>
+      </tr>
+    );
+  }
+
   return (
     <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
       <td className="py-4 px-6">{schedule.patientName}</td>
       <td className="py-4 px-6">
         {editing ? (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <input
               type="datetime-local"
               value={value}
@@ -96,9 +140,7 @@ export function ScheduleRow({ schedule }: Props) {
         ) : (
           <div className="flex items-center gap-3">
             <span>
-              {schedule.scheduled_at
-                ? new Date(schedule.scheduled_at).toLocaleString("ja-JP")
-                : "—"}
+              {schedule.scheduled_at ? formatJST(schedule.scheduled_at) : "—"}
             </span>
             <button
               onClick={() => setEditing(true)}
@@ -123,7 +165,20 @@ export function ScheduleRow({ schedule }: Props) {
           : "—"}
       </td>
       <td className="py-4 px-6">
-        <span className="text-[var(--color-warning)]">未送信</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[var(--color-warning)]">未送信</span>
+          <button
+            onClick={handleSendNow}
+            disabled={sending}
+            className="px-3 py-1 rounded text-xs font-medium text-white transition-all hover:opacity-80 disabled:opacity-40"
+            style={{ backgroundColor: "var(--accent-primary)" }}
+          >
+            {sending ? "送信中…" : "今すぐ送信"}
+          </button>
+        </div>
+        {sendError && (
+          <p className="text-xs text-[var(--color-error)] mt-1">{sendError}</p>
+        )}
       </td>
     </tr>
   );
