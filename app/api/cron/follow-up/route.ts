@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     .schema("terastar_line")
     .from("follow_up_schedules")
     .select(
-      "id, patient_id, pattern_id, drug_names, scheduled_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options, free_text_prompt)"
+      "id, patient_id, pattern_id, drug_names, scheduled_at, patients(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options, free_text_prompt)"
     )
     .is("sent_at", null)
     .gte("scheduled_at", todayStart.toISOString())

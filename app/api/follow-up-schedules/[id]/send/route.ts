@@ -30,14 +30,15 @@ export async function POST(
     .schema("terastar_line")
     .from("follow_up_schedules")
     .select(
-      "id, patient_id, pattern_id, drug_names, scheduled_at, sent_at, patients!inner(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options, free_text_prompt)"
+      "id, patient_id, pattern_id, drug_names, scheduled_at, sent_at, patients(name, line_user_id), follow_up_patterns(name, days_after, message_template, reply_options, free_text_prompt)"
     )
     .eq("id", id)
     .single();
 
   if (fetchError || !schedule) {
+    console.error("[follow-up send] fetch error:", fetchError);
     return NextResponse.json(
-      { error: "Schedule not found" },
+      { error: fetchError?.message ?? "Schedule not found" },
       { status: 404 }
     );
   }
