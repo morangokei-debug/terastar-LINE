@@ -10,6 +10,23 @@ export default function SettingsPage() {
       </h2>
 
       <div className="space-y-6">
+        <div
+          className="rounded-xl p-6"
+          style={{
+            backgroundColor: "var(--bg-secondary)",
+            border: "1px solid var(--border-color)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <h3 className="font-medium mb-2">タブレットでフルスクリーン表示</h3>
+          <p className="text-sm text-[var(--text-muted)] mb-2">
+            タブレット・スマホで開いた時、画面右下に<strong>フルスクリーンボタン</strong>が表示されます。タップするとブラウザのアドレスバーなどを非表示にできます。
+          </p>
+          <p className="text-xs text-[var(--text-muted)]">
+            また、ブラウザの「ホーム画面に追加」でアプリのように起動すると、起動時からフルスクリーンで開きます。
+          </p>
+        </div>
+
         <LineQrCode />
         <NotificationRegister />
 

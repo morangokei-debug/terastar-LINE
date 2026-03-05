@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "./components/Sidebar";
+import { FullscreenButton } from "./components/FullscreenButton";
 
 export default async function DashboardLayout({
   children,
@@ -46,6 +47,7 @@ export default async function DashboardLayout({
         </header>
         <div className="flex-1 p-8">{children}</div>
       </main>
+      <FullscreenButton />
     </div>
   );
 }
