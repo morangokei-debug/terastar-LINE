@@ -298,10 +298,10 @@ export async function POST(request: NextRequest) {
 
         const content = isText ? msg.text : "[画像]";
 
-        // 通知先登録：「通知登録 コード」で登録
-        if (isText && /^通知登録\s+(\S+)$/.test(msg.text.trim())) {
-          const match = msg.text.trim().match(/^通知登録\s+(\S+)$/);
-          const token = match?.[1]?.toUpperCase();
+        // 通知先登録：「通知登録 コード」または「通知登録コード」で登録
+        const notifyMatch = msg.text.trim().match(/^通知登録\s*(\S{4,8})$/);
+        if (isText && notifyMatch) {
+          const token = notifyMatch[1]?.toUpperCase();
           if (token) {
             const svc = getServiceClient();
             if (svc) {

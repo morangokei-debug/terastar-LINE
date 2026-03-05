@@ -75,10 +75,13 @@ export function NotificationRegister() {
           style={{ backgroundColor: "var(--bg-tertiary)" }}
         >
           <p className="text-sm text-[var(--text-secondary)] mb-2">
-            以下のメッセージをLINE公式アカウントに送信してください（15分以内）：
+            以下のメッセージを<strong>LINEアプリ</strong>のトーク画面で送信してください（15分以内）：
           </p>
           <p className="text-lg font-mono font-bold mb-2">
             通知登録 {token}
+          </p>
+          <p className="text-xs text-[var(--text-muted)] mb-2">
+            ※ ダッシュボードのチャットではなく、<strong>スマホのLINEアプリ</strong>で薬局の公式アカウントを開き、そのトークに送信してください。
           </p>
           <p className="text-xs text-[var(--text-muted)]">
             通知を受け取りたいスマホで、薬局のLINE公式アカウントを友だち追加した上で送信してください。
