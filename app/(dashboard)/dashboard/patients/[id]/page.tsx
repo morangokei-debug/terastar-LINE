@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { LineLinkForm } from "./LineLinkForm";
+import { PatientEditForm } from "./PatientEditForm";
 
 export default async function PatientDetailPage({
   params,
@@ -42,11 +43,17 @@ export default async function PatientDetailPage({
         }}
       >
         <h2 className="font-medium mb-4 text-[var(--text-secondary)]">基本情報</h2>
-        <dl className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <dt className="text-sm text-[var(--text-muted)]">生年月日</dt>
-            <dd>{patient.birth_date ?? "—"}</dd>
-          </div>
+        <div className="mb-6">
+          <p className="text-sm text-[var(--text-muted)] mb-3">
+            LINEで友だち追加された方の名前・生年月日は、こちらから登録・編集できます。
+          </p>
+          <PatientEditForm
+            patientId={patient.id}
+            initialName={patient.name}
+            initialBirthDate={patient.birth_date}
+          />
+        </div>
+        <dl className="grid gap-3 sm:grid-cols-2 pt-4" style={{ borderTop: "1px solid var(--border-color)" }}>
           <div>
             <dt className="text-sm text-[var(--text-muted)]">電話番号</dt>
             <dd>{patient.phone ?? "—"}</dd>
