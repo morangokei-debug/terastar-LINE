@@ -38,7 +38,7 @@ export function RichMenuSetup() {
     >
       <h3 className="font-medium mb-2">LINEリッチメニュー</h3>
       <p className="text-sm text-[var(--text-muted)] mb-2">
-        処方箋送信・ホームページ・メッセージ入力の3項目を設定します。初回のみ実行してください。
+        処方箋送信・ホームページの2項目を設定します。初回のみ実行してください。
       </p>
       <p className="text-xs text-[var(--color-warning)] mb-4">
         ※ 友だち追加後にリッチメニューが表示されない場合：マイグレーション実行後、このボタンを押してから再度友だち追加（削除→再追加）してください。

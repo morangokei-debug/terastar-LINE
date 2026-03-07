@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     chatBarText: "メニュー",
     areas: [
       {
-        bounds: { x: 0, y: 0, width: 833, height: 843 },
+        bounds: { x: 0, y: 0, width: 1250, height: 843 },
         action: {
           type: "postback",
           label: "処方箋送信",
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         },
       },
       {
-        bounds: { x: 833, y: 0, width: 1667, height: 843 },
+        bounds: { x: 1250, y: 0, width: 1250, height: 843 },
         action: {
           type: "uri",
           label: "ホームページ",
