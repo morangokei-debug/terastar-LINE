@@ -8,6 +8,7 @@ type Message = {
   id: string;
   sender: string;
   content: string;
+  image_url?: string | null;
   created_at: string;
 };
 
@@ -52,6 +53,7 @@ export function ChatView({
             id: string;
             sender: string;
             content: string;
+            image_url?: string | null;
             created_at: string;
           };
           setMessages((prev) => {
@@ -164,7 +166,25 @@ export function ChatView({
                     m.sender !== "pharmacist" ? "4px" : undefined,
                 }}
               >
-                <p className="text-sm whitespace-pre-wrap">{m.content}</p>
+                {m.image_url ? (
+                  <a
+                    href={m.image_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    <img
+                      src={m.image_url}
+                      alt="患者が送信した画像"
+                      className="max-w-full max-h-64 rounded-lg object-contain"
+                    />
+                  </a>
+                ) : null}
+                {m.content && (
+                  <p className="text-sm whitespace-pre-wrap">
+                    {m.content}
+                  </p>
+                )}
                 <p className="text-xs mt-1" style={{ opacity: 0.7 }}>
                   {new Date(m.created_at).toLocaleString("ja-JP")}
                 </p>

@@ -122,6 +122,50 @@ function getServiceClient() {
 }
 
 /**
+ * LINE画像メッセージを取得してSupabase Storageに保存し、公開URLを返す
+ */
+async function fetchAndSaveLineImage(
+  messageId: string,
+  tenantId: string,
+  supabase: NonNullable<ReturnType<typeof getServiceClient>>
+): Promise<string | null> {
+  if (!LINE_CHANNEL_ACCESS_TOKEN) return null;
+  try {
+    const res = await fetch(
+      `https://api-data.line.me/v2/bot/message/${messageId}/content`,
+      {
+        headers: { Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}` },
+      }
+    );
+    if (!res.ok) {
+      console.warn("[LINE Webhook] fetch image failed:", res.status);
+      return null;
+    }
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+    const ext = contentType.includes("png") ? "png" : "jpg";
+    const buf = await res.arrayBuffer();
+    const path = `${tenantId}/${messageId}.${ext}`;
+    const { error: uploadErr } = await supabase.storage
+      .from("chat-images")
+      .upload(path, buf, {
+        contentType: contentType.startsWith("image/") ? contentType : "image/jpeg",
+        upsert: true,
+      });
+    if (uploadErr) {
+      console.warn("[LINE Webhook] image upload failed:", uploadErr);
+      return null;
+    }
+    const { data: urlData } = supabase.storage
+      .from("chat-images")
+      .getPublicUrl(path);
+    return urlData.publicUrl;
+  } catch (e) {
+    console.warn("[LINE Webhook] fetchAndSaveLineImage error:", e);
+    return null;
+  }
+}
+
+/**
  * LINE Webhook エンドポイント
  * - 友だち追加、メッセージ受信などのイベントを受信
  * - DB保存・患者紐付け（line_user_id で既存患者を検索）
@@ -408,13 +452,60 @@ export async function POST(request: NextRequest) {
             }
           }
 
+          let imageUrl: string | null = null;
+          if (isImage && msg.id) {
+            imageUrl =
+              (await fetchAndSaveLineImage(
+                msg.id,
+                activeTenant.id,
+                supabase
+              )) ?? null;
+          }
+
           await supabase.schema("terastar_line").from("chat_messages").insert({
             tenant_id: activeTenant.id,
             patient_id: patient.id,
             sender: "patient",
             content,
             line_message_id: msg.id,
+            image_url: imageUrl,
           });
+
+          // 患者からのチャット受信時にLINE通知
+          const { data: tenantForNotify } = await supabase
+            .schema("terastar_line")
+            .from("tenants")
+            .select("notification_line_user_id")
+            .eq("id", activeTenant.id)
+            .single();
+          const notifyUserId = tenantForNotify?.notification_line_user_id;
+          if (notifyUserId && LINE_CHANNEL_ACCESS_TOKEN) {
+            const baseUrl = getBaseUrl();
+            const dashboardUrl = `${baseUrl}/dashboard/chat/${patient.id}`;
+            const { data: patientName } = await supabase
+              .schema("terastar_line")
+              .from("patients")
+              .select("name")
+              .eq("id", patient.id)
+              .single();
+            const name = patientName?.name ?? "患者";
+            const notifyText = `💬 新しいチャットが届きました\n\n${name}さんから: ${content}\n\n確認: ${dashboardUrl}`;
+            try {
+              await fetch("https://api.line.me/v2/bot/message/push", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
+                },
+                body: JSON.stringify({
+                  to: notifyUserId,
+                  messages: [{ type: "text", text: notifyText }],
+                }),
+              });
+            } catch (e) {
+              console.warn("[LINE Webhook] chat notify failed:", e);
+            }
+          }
         }
       } else if (event.type === "postback") {
         const data = event.postback?.data ?? "";

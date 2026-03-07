@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { readFileSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -84,21 +84,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. 事前生成済みのPNG画像を読み込み
-    const pngBuffer = readFileSync(
-      join(process.cwd(), "public", "richmenu.png")
-    );
+    // 2. リッチメニュー画像を読み込み（JPEG優先・1MB以下、なければPNG）
+    const jpegPath = join(process.cwd(), "public", "richmenu.jpg");
+    const pngPath = join(process.cwd(), "public", "richmenu.png");
+    let imageBuffer: Buffer;
+    let contentType: string;
+    if (existsSync(jpegPath)) {
+      imageBuffer = readFileSync(jpegPath);
+      contentType = "image/jpeg";
+    } else {
+      imageBuffer = readFileSync(pngPath);
+      contentType = "image/png";
+    }
 
-    // 3. 画像アップロード
+    // 3. 画像アップロード（LINE制限: 1MB以下）
     const uploadRes = await fetch(
       `https://api-data.line.me/v2/bot/richmenu/${richMenuId}/content`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "image/png",
+          "Content-Type": contentType,
           Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
         },
-        body: new Uint8Array(pngBuffer),
+        body: new Uint8Array(imageBuffer),
       }
     );
 

@@ -50,7 +50,7 @@ const FAQ = [
   },
   {
     q: "処方箋が届いたことを知りたいです。",
-    a: "設定画面の「処方箋受信時のLINE通知」で、通知先を登録してください。処方箋が届くと、登録したLINEアカウントに通知が届きます。",
+    a: "設定画面の「処方箋・チャット受信時のLINE通知」で、通知先を登録してください。処方箋やチャットが届くと、登録したLINEアカウントに通知が届きます。",
   },
   {
     q: "リッチメニューが表示されません。",
@@ -686,8 +686,12 @@ export default function ManualPage() {
                   <li>左メニュー「チャット」をクリック</li>
                   <li>患者一覧が表示されます。未読がある場合は「要対応」タブに表示されます。</li>
                   <li>患者名をクリックすると、メッセージ履歴が表示されます。</li>
+                  <li>患者が送った画像は、メッセージ内に表示されます。画像をクリックすると別タブで拡大表示できます。</li>
                   <li>返信する場合は、画面下部の入力欄にメッセージを入力し、送信ボタンをクリックします。</li>
                 </ol>
+                <div className="mb-4 rounded-lg border-l-4 p-4" style={{ backgroundColor: "var(--accent-light)", borderColor: "var(--accent-primary)" }}>
+                  患者がチャットでメッセージを送ると、設定で登録したLINEアカウントに通知が届きます。処方箋受信時と同じ通知先です。
+                </div>
                 <div className="rounded-lg border-l-4 p-4" style={{ backgroundColor: "rgba(239, 68, 68, 0.08)", borderColor: "var(--color-error)" }}>
                   チャット機能を使うには、LINE Official Account Manager の応答設定で「応答メッセージ」をオフにする必要があります。
                 </div>
@@ -720,7 +724,10 @@ export default function ManualPage() {
             title: "設定",
             content: (
               <>
-                <h3 className="mb-3 font-medium">処方箋受信時のLINE通知</h3>
+                <h3 className="mb-3 font-medium">処方箋・チャット受信時のLINE通知</h3>
+                <p className="mb-4 text-sm" style={{ color: "var(--text-secondary)" }}>
+                  処方箋やチャットが届いたときに、登録したLINEアカウントに通知を送ります。
+                </p>
                 <ol className="mb-6 list-decimal space-y-2 pl-6">
                   <li>「登録用コードを発行」をクリック</li>
                   <li>表示された6文字のコードをメモ</li>

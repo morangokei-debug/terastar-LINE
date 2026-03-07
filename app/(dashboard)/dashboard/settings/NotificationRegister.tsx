@@ -58,9 +58,9 @@ export function NotificationRegister() {
         boxShadow: "var(--shadow-sm)",
       }}
     >
-      <h3 className="font-medium mb-2">処方箋受信時のLINE通知</h3>
+      <h3 className="font-medium mb-2">処方箋・チャット受信時のLINE通知</h3>
       <p className="text-sm text-[var(--text-muted)] mb-4">
-        患者が処方箋を送信すると、登録したLINEアカウントにプッシュ通知が届きます。見落とし防止にご利用ください。
+        患者が処方箋を送信したとき、またはチャットでメッセージを送ったときに、登録したLINEアカウントにプッシュ通知が届きます。見落とし防止にご利用ください。
       </p>
 
       {hasRecipient === true && (

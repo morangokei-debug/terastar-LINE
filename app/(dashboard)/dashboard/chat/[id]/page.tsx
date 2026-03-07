@@ -23,7 +23,7 @@ export default async function ChatDetailPage({
   const { data: messages } = await supabase
     .schema("terastar_line")
     .from("chat_messages")
-    .select("id, sender, content, created_at")
+    .select("id, sender, content, image_url, created_at")
     .eq("patient_id", id)
     .order("created_at", { ascending: true });
 
