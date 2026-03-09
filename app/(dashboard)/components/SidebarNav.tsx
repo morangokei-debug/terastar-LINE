@@ -43,7 +43,7 @@ export function SidebarNav() {
               <Link
                 href={item.href}
                 className={`
-                  flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all
+                  flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
                   ${isActive
                     ? "bg-[var(--sidebar-active)] text-[var(--sidebar-text-active)]"
                     : "text-[var(--sidebar-text)] hover:bg-[var(--sidebar-bg-hover)] hover:text-white"
@@ -51,7 +51,7 @@ export function SidebarNav() {
                 `}
                 style={
                   isActive
-                    ? { borderLeft: "3px solid var(--sidebar-active-border)", marginLeft: "-3px" }
+                    ? { borderLeft: "3px solid var(--sidebar-active-border)", marginLeft: "-3px", boxShadow: "inset 0 0 0 1px rgba(249,115,22,0.08)" }
                     : undefined
                 }
               >

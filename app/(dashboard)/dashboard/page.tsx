@@ -132,42 +132,48 @@ export default async function DashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h2
-          className="text-xl font-semibold"
-          style={{ color: "var(--text-primary)" }}
+          className="text-2xl font-bold tracking-tight"
+          style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
         >
           ダッシュボード
         </h2>
-        <span className="text-sm text-[var(--text-muted)]">
+        <span className="text-sm font-medium px-3 py-1 rounded-full" style={{ color: "var(--text-muted)", backgroundColor: "var(--bg-tertiary)" }}>
           {tenantData?.name ?? "—"}
         </span>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <Link
               key={card.href}
               href={card.href}
-              className="block rounded-xl p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="group block rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
               style={{
                 backgroundColor: "var(--bg-secondary)",
                 border: card.highlight
-                  ? `1px solid ${card.color}`
+                  ? `2px solid ${card.color}`
                   : "1px solid var(--border-color)",
+                boxShadow: "var(--shadow-card)",
               }}
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-4">
                 <h3
-                  className="text-xs font-medium uppercase tracking-wider"
+                  className="text-xs font-semibold uppercase tracking-widest"
                   style={{ color: "var(--text-muted)" }}
                 >
                   {card.label}
                 </h3>
-                <Icon size={18} style={{ color: card.color }} />
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110"
+                  style={{ backgroundColor: "var(--bg-tertiary)", color: card.color }}
+                >
+                  <Icon size={20} strokeWidth={2} />
+                </div>
               </div>
               <p
-                className="text-3xl font-bold"
+                className="text-3xl font-bold tracking-tight"
                 style={{ color: card.color }}
               >
                 {card.value}

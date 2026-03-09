@@ -5,14 +5,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap");
 
 :root {
-  /* メインエリア（明るい） */
-  --bg-primary: #f8fafc;
+  /* メインエリア（明るい・上品なグレー） */
+  --bg-primary: #f1f5f9;
+  --bg-primary-gradient: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  /* サイドバー（ダーク） */
-  --sidebar-bg: #1e293b;
-  --sidebar-bg-hover: #334155;
-  --sidebar-active: rgba(249, 115, 22, 0.15);
+  --bg-tertiary: #f8fafc;
+  /* サイドバー（ダーク・グラデーション） */
+  --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  --sidebar-bg-solid: #1e293b;
+  --sidebar-bg-hover: rgba(51, 65, 85, 0.8);
+  --sidebar-active: rgba(249, 115, 22, 0.18);
   --sidebar-active-border: #f97316;
   --sidebar-text: #94a3b8;
   --sidebar-text-active: #ffffff;
@@ -20,7 +22,7 @@
   --accent-primary: #f97316;
   --accent-secondary: #ea580c;
   --accent-light: #fff7ed;
-  --accent-glow: rgba(249, 115, 22, 0.2);
+  --accent-glow: rgba(249, 115, 22, 0.25);
   /* テキスト */
   --text-primary: #0f172a;
   --text-secondary: #475569;
@@ -32,17 +34,25 @@
   --color-warning: #f59e0b;
   --border-color: #e2e8f0;
   --border-focus: #f97316;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 8px 24px -4px rgba(0, 0, 0, 0.1), 0 4px 12px -4px rgba(0, 0, 0, 0.06);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --transition-fast: 0.15s ease;
   --transition-base: 0.2s ease;
 }
 
 body {
-  background-color: var(--bg-primary);
+  background: var(--bg-primary-gradient);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: "Noto Sans JP", "Plus Jakarta Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -34,19 +34,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      {/* 背景アクセント */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#fff7ed] via-transparent to-[#f1f5f9]" aria-hidden />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent-primary)] opacity-[0.06] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" aria-hidden />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-[var(--sidebar-bg-solid)] opacity-[0.04] rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" aria-hidden />
+
       <div
-        className="w-full max-w-md p-8 rounded-xl"
+        className="relative w-full max-w-md p-8 rounded-2xl shadow-[var(--shadow-lg)] backdrop-blur-sm"
         style={{
-          backgroundColor: "var(--bg-secondary)",
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
           border: "1px solid var(--border-color)",
         }}
       >
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          テラスターファーマシー LINEフォローアップ
+        <h1 className="text-2xl font-bold mb-2 text-center tracking-tight" style={{ color: "var(--text-primary)" }}>
+          テラスターファーマシー
         </h1>
-        <p className="text-sm text-[var(--text-secondary)] mb-8 text-center">
-          薬剤師用ログイン
+        <p className="text-sm text-[var(--text-muted)] mb-8 text-center font-medium">
+          LINEフォローアップ
         </p>
 
         <p className="mb-6 text-center text-sm text-[var(--text-muted)] space-x-4">
@@ -74,7 +79,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
+              className="w-full px-4 py-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-white transition-shadow"
               placeholder="example@pharmacy.jp"
             />
           </div>
@@ -93,7 +98,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-[var(--bg-primary)]"
+              className="w-full px-4 py-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-white transition-shadow"
             />
           </div>
 
@@ -109,9 +114,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 rounded-lg font-medium text-white transition-all disabled:opacity-40 hover:scale-[0.99] active:scale-[0.97]"
+            className="w-full py-3.5 px-4 rounded-xl font-semibold text-white transition-all disabled:opacity-40 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
             style={{
-              backgroundColor: "var(--accent-primary)",
+              background: "linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)",
+              boxShadow: "0 4px 14px rgba(249, 115, 22, 0.35)",
             }}
           >
             {loading ? "ログイン中..." : "ログイン"}

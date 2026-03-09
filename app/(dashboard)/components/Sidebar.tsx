@@ -7,16 +7,17 @@ export function Sidebar({ userName }: { userName?: string }) {
   return (
     <aside
       className="flex w-64 flex-shrink-0 flex-col"
-      style={{ backgroundColor: "var(--sidebar-bg)" }}
+      style={{ background: "var(--sidebar-bg)" }}
     >
       {/* ユーザーエリア */}
       <div className="border-b px-4 py-5" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-3">
           <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-lg"
             style={{
-              backgroundColor: "var(--accent-primary)",
+              background: "linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)",
               color: "white",
+              boxShadow: "0 4px 12px rgba(249, 115, 22, 0.35)",
             }}
           >
             {userName?.charAt(0) ?? "?"}

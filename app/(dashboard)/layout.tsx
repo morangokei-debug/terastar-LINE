@@ -23,24 +23,24 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       <Sidebar userName={userName} />
-      <main
+        <main
         className="flex flex-1 flex-col overflow-auto"
         style={{ backgroundColor: "var(--bg-primary)" }}
       >
-        {/* ヘッダーバー（参考UIのトップバー風） */}
+        {/* ヘッダーバー */}
         <header
-          className="flex-shrink-0 border-b px-8 py-4"
+          className="flex-shrink-0 border-b px-8 py-4 backdrop-blur-sm"
           style={{
-            backgroundColor: "var(--bg-secondary)",
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
             borderColor: "var(--border-color)",
             boxShadow: "var(--shadow-sm)",
           }}
         >
           <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>
+            <h1 className="text-lg font-semibold tracking-tight" style={{ color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
               テラスターファーマシー
             </h1>
-            <span className="text-sm" style={{ color: "var(--text-muted)" }}>
+            <span className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
               LINEフォローアップ
             </span>
           </div>
