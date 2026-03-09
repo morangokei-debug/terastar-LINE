@@ -81,7 +81,7 @@ export default async function DashboardPage() {
       label: "患者数",
       value: patientsCount,
       icon: Users,
-      color: "var(--accent-primary)",
+      color: "var(--accent)",
     },
     {
       href: "/dashboard/prescription-requests",
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
       color:
         prescriptionRequestsCount > 0
           ? "var(--color-warning)"
-          : "var(--text-muted)",
+          : "var(--text-secondary)",
       highlight: prescriptionRequestsCount > 0,
     },
     {
@@ -113,7 +113,7 @@ export default async function DashboardPage() {
       color:
         pendingSchedules > 0
           ? "var(--color-warning)"
-          : "var(--text-muted)",
+          : "var(--text-secondary)",
     },
     {
       href: "/dashboard/chat",
@@ -132,48 +132,43 @@ export default async function DashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h2
-          className="text-2xl font-bold tracking-tight"
-          style={{ color: "var(--text-primary)", letterSpacing: "-0.03em" }}
+          className="text-xl font-semibold"
+          style={{ color: "var(--text-primary)" }}
         >
           ダッシュボード
         </h2>
-        <span className="text-sm font-medium px-3 py-1 rounded-full" style={{ color: "var(--text-muted)", backgroundColor: "var(--bg-tertiary)" }}>
+        <span className="text-sm px-3 py-1 rounded-full" style={{ color: "var(--text-muted)", backgroundColor: "var(--bg-subtle)" }}>
           {tenantData?.name ?? "—"}
         </span>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => {
           const Icon = card.icon;
           return (
             <Link
               key={card.href}
               href={card.href}
-              className="group block rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]"
+              className="block rounded-lg p-5 transition-[box-shadow,transform] duration-150 hover:shadow-md"
               style={{
-                backgroundColor: "var(--bg-secondary)",
+                backgroundColor: "var(--bg-surface)",
                 border: card.highlight
-                  ? `2px solid ${card.color}`
-                  : "1px solid var(--border-color)",
-                boxShadow: "var(--shadow-card)",
+                  ? `1px solid ${card.color}`
+                  : "1px solid var(--border-default)",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
               }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-3">
                 <h3
-                  className="text-xs font-semibold uppercase tracking-widest"
+                  className="text-xs font-medium uppercase tracking-wider"
                   style={{ color: "var(--text-muted)" }}
                 >
                   {card.label}
                 </h3>
-                <div
-                  className="flex h-10 w-10 items-center justify-center rounded-xl transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: "var(--bg-tertiary)", color: card.color }}
-                >
-                  <Icon size={20} strokeWidth={2} />
-                </div>
+                <Icon size={18} style={{ color: card.color }} />
               </div>
               <p
-                className="text-3xl font-bold tracking-tight"
+                className="text-2xl font-semibold"
                 style={{ color: card.color }}
               >
                 {card.value}

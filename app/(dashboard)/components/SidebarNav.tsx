@@ -43,15 +43,15 @@ export function SidebarNav() {
               <Link
                 href={item.href}
                 className={`
-                  flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200
+                  flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color] duration-150
                   ${isActive
-                    ? "bg-[var(--sidebar-active)] text-[var(--sidebar-text-active)]"
-                    : "text-[var(--sidebar-text)] hover:bg-[var(--sidebar-bg-hover)] hover:text-white"
+                    ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
+                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                   }
                 `}
                 style={
                   isActive
-                    ? { borderLeft: "3px solid var(--sidebar-active-border)", marginLeft: "-3px", boxShadow: "inset 0 0 0 1px rgba(249,115,22,0.08)" }
+                    ? { borderLeft: "3px solid var(--accent)", marginLeft: "-3px" }
                     : undefined
                 }
               >

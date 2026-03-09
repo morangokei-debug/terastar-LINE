@@ -34,32 +34,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      {/* 背景アクセント */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#fff7ed] via-transparent to-[#f1f5f9]" aria-hidden />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent-primary)] opacity-[0.06] rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" aria-hidden />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-[var(--sidebar-bg-solid)] opacity-[0.04] rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" aria-hidden />
-
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "var(--bg-app)" }}>
       <div
-        className="relative w-full max-w-md p-8 rounded-2xl shadow-[var(--shadow-lg)] backdrop-blur-sm"
+        className="w-full max-w-md p-8 rounded-lg"
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--bg-surface)",
+          border: "1px solid var(--border-default)",
+          boxShadow: "0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05)",
         }}
       >
-        <h1 className="text-2xl font-bold mb-2 text-center tracking-tight" style={{ color: "var(--text-primary)" }}>
+        <h1 className="text-xl font-semibold mb-2 text-center" style={{ color: "var(--text-primary)" }}>
           テラスターファーマシー
         </h1>
-        <p className="text-sm text-[var(--text-muted)] mb-8 text-center font-medium">
+        <p className="text-sm mb-8 text-center" style={{ color: "var(--text-muted)" }}>
           LINEフォローアップ
         </p>
 
-        <p className="mb-6 text-center text-sm text-[var(--text-muted)] space-x-4">
-          <a href="/welcome" className="hover:text-[var(--accent-primary)]">
+        <p className="mb-6 text-center text-sm space-x-4" style={{ color: "var(--text-muted)" }}>
+          <a href="/welcome" className="hover:text-[var(--accent)] transition-colors" style={{ transition: "var(--t-fast)" }}>
             患者の方はLINE友だち追加
           </a>
           <span>|</span>
-          <a href="/login/signup" className="hover:text-[var(--accent-primary)]">
+          <a href="/login/signup" className="hover:text-[var(--accent)] transition-colors" style={{ transition: "var(--t-fast)" }}>
             初めての方はアカウント作成
           </a>
         </p>
@@ -79,7 +75,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               autoComplete="email"
-              className="w-full px-4 py-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-white transition-shadow"
+              className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)]"
+              style={{
+                backgroundColor: "var(--bg-subtle)",
+                border: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+                transition: "var(--t-fast)",
+              }}
               placeholder="example@pharmacy.jp"
             />
           </div>
@@ -98,7 +100,13 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full px-4 py-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)] focus:ring-offset-2 focus:ring-offset-white transition-shadow"
+              className="w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent)]"
+              style={{
+                backgroundColor: "var(--bg-subtle)",
+                border: "1px solid var(--border-default)",
+                color: "var(--text-primary)",
+                transition: "var(--t-fast)",
+              }}
             />
           </div>
 
@@ -114,10 +122,10 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-xl font-semibold text-white transition-all disabled:opacity-40 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full py-3 px-4 rounded-lg font-medium text-white transition-colors disabled:opacity-40 hover:bg-[var(--accent-hover)]"
             style={{
-              background: "linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)",
-              boxShadow: "0 4px 14px rgba(249, 115, 22, 0.35)",
+              backgroundColor: "var(--accent)",
+              transition: "var(--t-base)",
             }}
           >
             {loading ? "ログイン中..." : "ログイン"}
