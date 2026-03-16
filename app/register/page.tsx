@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -9,10 +9,41 @@ function RegisterForm() {
   const uid = searchParams.get("uid") ?? "";
 
   const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [birthYear, setBirthYear] = useState("");
+  const [birthMonth, setBirthMonth] = useState("");
+  const [birthDay, setBirthDay] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentYear = new Date().getFullYear();
+  const yearOptions = useMemo(
+    () => Array.from({ length: 120 }, (_, i) => String(currentYear - i)),
+    [currentYear]
+  );
+  const monthOptions = useMemo(
+    () => Array.from({ length: 12 }, (_, i) => String(i + 1)),
+    []
+  );
+  const maxDay = useMemo(() => {
+    if (!birthYear || !birthMonth) {
+      return 31;
+    }
+    return new Date(Number(birthYear), Number(birthMonth), 0).getDate();
+  }, [birthYear, birthMonth]);
+  const dayOptions = useMemo(
+    () => Array.from({ length: maxDay }, (_, i) => String(i + 1)),
+    [maxDay]
+  );
+  const birthDate =
+    birthYear && birthMonth && birthDay
+      ? `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`
+      : "";
+
+  useEffect(() => {
+    if (birthDay && Number(birthDay) > maxDay) {
+      setBirthDay("");
+    }
+  }, [birthDay, maxDay]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -126,19 +157,58 @@ function RegisterForm() {
 
           <div>
             <label
-              htmlFor="birthDate"
+              htmlFor="birthYear"
               className="block text-sm font-medium mb-2 text-[var(--text-primary)]"
             >
               生年月日 <span className="text-[var(--color-error)]">*</span>
             </label>
-            <input
-              id="birthDate"
-              type="date"
-              value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
-            />
+            <div className="grid grid-cols-3 gap-2">
+              <select
+                id="birthYear"
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
+                required
+                aria-label="生年月日の年"
+                className="w-full px-3 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
+              >
+                <option value="">年</option>
+                {yearOptions.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+              <select
+                id="birthMonth"
+                value={birthMonth}
+                onChange={(e) => setBirthMonth(e.target.value)}
+                required
+                aria-label="生年月日の月"
+                className="w-full px-3 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
+              >
+                <option value="">月</option>
+                {monthOptions.map((month) => (
+                  <option key={month} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+              <select
+                id="birthDay"
+                value={birthDay}
+                onChange={(e) => setBirthDay(e.target.value)}
+                required
+                aria-label="生年月日の日"
+                className="w-full px-3 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border-focus)]"
+              >
+                <option value="">日</option>
+                {dayOptions.map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {error && (

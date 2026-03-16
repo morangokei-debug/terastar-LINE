@@ -27,39 +27,25 @@ export default async function ChatPage() {
     .not("line_user_id", "is", null)
     .order("name");
 
-  const { data: recentMessages } = await supabase
+  const { data: summaries } = await supabase
     .schema("terastar_line")
-    .from("chat_messages")
-    .select("patient_id, sender, content, created_at, read_at")
+    .from("chat_patient_summaries")
+    .select("patient_id, last_sender, last_content, last_created_at, unread_count")
     .eq("tenant_id", tenant.id)
-    .order("created_at", { ascending: false });
+    .order("last_created_at", { ascending: false });
 
-  const lastByPatient = new Map<
-    string,
-    { date: Date; content: string; sender: string }
-  >();
-  const unreadByPatient = new Map<string, number>();
-
-  for (const m of recentMessages ?? []) {
-    if (!lastByPatient.has(m.patient_id)) {
-      lastByPatient.set(m.patient_id, {
-        date: new Date(m.created_at),
-        content: m.content,
-        sender: m.sender,
-      });
-    }
-    if (m.sender === "patient" && !m.read_at) {
-      unreadByPatient.set(
-        m.patient_id,
-        (unreadByPatient.get(m.patient_id) ?? 0) + 1
-      );
-    }
-  }
+  const summaryByPatient = new Map((summaries ?? []).map((s) => [s.patient_id, s]));
 
   const withLast = (patients ?? []).map((p) => ({
     ...p,
-    lastMessage: lastByPatient.get(p.id),
-    unread: unreadByPatient.get(p.id) ?? 0,
+    lastMessage: summaryByPatient.get(p.id)
+      ? {
+          date: new Date(summaryByPatient.get(p.id)!.last_created_at),
+          content: summaryByPatient.get(p.id)!.last_content,
+          sender: summaryByPatient.get(p.id)!.last_sender,
+        }
+      : undefined,
+    unread: summaryByPatient.get(p.id)?.unread_count ?? 0,
   }));
   withLast.sort((a, b) => {
     const da = a.lastMessage?.date.getTime() ?? 0;
