@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTenant } from "@/lib/get-tenant";
 import Link from "next/link";
 import {
   Users,
@@ -10,13 +11,7 @@ import {
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: tenantData } = await supabase
-    .schema("terastar_line")
-    .from("tenants")
-    .select("id, name")
-    .limit(1)
-    .single();
-
+  const tenantData = await getTenant();
   const tenantId = tenantData?.id;
 
   let patientsCount = 0;

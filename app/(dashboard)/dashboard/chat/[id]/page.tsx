@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTenant } from "@/lib/get-tenant";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChatView } from "./ChatView";
@@ -10,6 +11,7 @@ export default async function ChatDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const tenant = await getTenant();
 
   const { data: patient } = await supabase
     .schema("terastar_line")
@@ -52,6 +54,7 @@ export default async function ChatDetailPage({
       <ChatView
         patientId={patient.id}
         lineUserId={patient.line_user_id}
+        tenantId={tenant?.id ?? null}
         initialMessages={messages ?? []}
       />
     </div>

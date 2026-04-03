@@ -1,14 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTenant } from "@/lib/get-tenant";
 import { BroadcastForm } from "./BroadcastForm";
 
 export default async function BroadcastPage() {
   const supabase = await createClient();
-  const { data: tenant } = await supabase
-    .schema("terastar_line")
-    .from("tenants")
-    .select("id")
-    .limit(1)
-    .single();
+  const tenant = await getTenant();
 
   if (!tenant) {
     return (

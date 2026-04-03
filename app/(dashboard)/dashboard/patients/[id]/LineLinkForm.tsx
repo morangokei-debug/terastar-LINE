@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 export function LineLinkForm({
   patientId,
   hasLine,
+  tenantId,
 }: {
   patientId: string;
   hasLine: boolean;
+  tenantId: string | null;
 }) {
   const [pending, setPending] = useState<{ id: string; line_user_id: string; created_at: string }[]>([]);
   const [selected, setSelected] = useState("");
@@ -19,25 +21,18 @@ export function LineLinkForm({
 
   useEffect(() => {
     async function load() {
+      if (!tenantId) return;
       const supabase = createClient();
-      const { data: tenant } = await supabase
-        .schema("terastar_line")
-        .from("tenants")
-        .select("id")
-        .limit(1)
-        .single();
-      if (!tenant) return;
-
       const { data, error } = await supabase
         .schema("terastar_line")
         .from("line_pending")
         .select("id, line_user_id, created_at")
-        .eq("tenant_id", tenant.id)
+        .eq("tenant_id", tenantId)
         .order("created_at", { ascending: false });
       if (!error) setPending(data ?? []);
     }
     if (!hasLine) load();
-  }, [hasLine]);
+  }, [hasLine, tenantId]);
 
   async function handleLink(e: React.FormEvent) {
     e.preventDefault();

@@ -15,10 +15,12 @@ type Message = {
 export function ChatView({
   patientId,
   lineUserId,
+  tenantId,
   initialMessages,
 }: {
   patientId: string;
   lineUserId: string;
+  tenantId: string | null;
   initialMessages: Message[];
 }) {
   const [messages, setMessages] = useState(initialMessages);
@@ -48,7 +50,7 @@ export function ChatView({
           table: "chat_messages",
           filter: `patient_id=eq.${patientId}`,
         },
-        (payload) => {
+        (payload: { new: Record<string, unknown> }) => {
           const newMsg = payload.new as {
             id: string;
             sender: string;
@@ -98,17 +100,10 @@ export function ChatView({
       return;
     }
 
-    const supabase = createClient();
-    const { data: tenant } = await supabase
-      .schema("terastar_line")
-      .from("tenants")
-      .select("id")
-      .limit(1)
-      .single();
-
-    if (tenant) {
+    if (tenantId) {
+      const supabase = createClient();
       await supabase.schema("terastar_line").from("chat_messages").insert({
-        tenant_id: tenant.id,
+        tenant_id: tenantId,
         patient_id: patientId,
         sender: "pharmacist",
         content: input.trim(),

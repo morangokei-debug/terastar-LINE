@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTenant } from "@/lib/get-tenant";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { LineLinkForm } from "./LineLinkForm";
@@ -11,6 +12,7 @@ export default async function PatientDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const tenant = await getTenant();
 
   const { data: patient } = await supabase
     .schema("terastar_line")
@@ -69,7 +71,7 @@ export default async function PatientDetailPage({
             </dd>
           </div>
         </dl>
-        <LineLinkForm patientId={patient.id} hasLine={!!patient.line_user_id} />
+        <LineLinkForm patientId={patient.id} hasLine={!!patient.line_user_id} tenantId={tenant?.id ?? null} />
       </div>
     </div>
   );
