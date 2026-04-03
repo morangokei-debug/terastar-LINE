@@ -16,10 +16,9 @@ export function Sidebar({ userName }: { userName?: string }) {
       <div className="border-b px-4 py-5" style={{ borderColor: "var(--border-default)" }}>
         <div className="flex items-center gap-3">
           <div
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white shadow-md ring-2 ring-white/30"
             style={{
-              backgroundColor: "var(--accent)",
-              color: "white",
+              background: "linear-gradient(145deg, #7b86eb 0%, #5e6ad2 45%, #4349a8 100%)",
             }}
           >
             {userName?.charAt(0) ?? "?"}
@@ -46,7 +45,7 @@ export function Sidebar({ userName }: { userName?: string }) {
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-[background-color,color] duration-150 hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             style={{ color: "var(--text-secondary)" }}
           >
-            <LogOut size={18} strokeWidth={2} />
+            <LogOut size={19} strokeWidth={1.65} absoluteStrokeWidth />
             <span>ログアウト</span>
           </button>
         </form>

@@ -5,7 +5,7 @@ import {
   Bell,
   Calendar,
   MessageSquare,
-  ClipboardList,
+  FileImage,
 } from "lucide-react";
 
 export default async function DashboardPage() {
@@ -87,7 +87,7 @@ export default async function DashboardPage() {
       href: "/dashboard/prescription-requests",
       label: "受信処方箋",
       value: prescriptionRequestsCount,
-      icon: ClipboardList,
+      icon: FileImage,
       color:
         prescriptionRequestsCount > 0
           ? "var(--color-warning)"
@@ -165,7 +165,20 @@ export default async function DashboardPage() {
                 >
                   {card.label}
                 </h3>
-                <Icon size={18} style={{ color: card.color }} />
+                <span
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border"
+                  style={{
+                    borderColor: "var(--border-default)",
+                    backgroundColor: "var(--bg-subtle)",
+                  }}
+                >
+                  <Icon
+                    size={20}
+                    strokeWidth={1.65}
+                    absoluteStrokeWidth
+                    style={{ color: card.color }}
+                  />
+                </span>
               </div>
               <p
                 className="text-2xl font-semibold"

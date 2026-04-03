@@ -8,7 +8,7 @@ import {
   ClipboardList,
   Pill,
   MessageSquare,
-  Inbox,
+  FileImage,
   Settings,
   Megaphone,
   Bell,
@@ -22,7 +22,7 @@ const navItems = [
   { href: "/dashboard/follow-up-replies", label: "フォローアップ返信内容確認", icon: Bell },
   { href: "/dashboard/chat", label: "チャット", icon: MessageSquare },
   { href: "/dashboard/broadcast", label: "一斉送信", icon: Megaphone },
-  { href: "/dashboard/prescription-requests", label: "受信処方箋", icon: Inbox },
+  { href: "/dashboard/prescription-requests", label: "受信処方箋", icon: FileImage },
   { href: "/dashboard/settings", label: "設定", icon: Settings },
 ];
 
@@ -43,9 +43,9 @@ export function SidebarNav() {
               <Link
                 href={item.href}
                 className={`
-                  flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color] duration-150
+                  flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-150
                   ${isActive
-                    ? "bg-[var(--accent-subtle)] text-[var(--accent)]"
+                    ? "bg-[var(--accent-subtle)] text-[var(--accent)] shadow-sm"
                     : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
                   }
                 `}
@@ -55,7 +55,14 @@ export function SidebarNav() {
                     : undefined
                 }
               >
-                <Icon size={18} strokeWidth={2} className="flex-shrink-0" />
+                <span
+                  className={`
+                    flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg transition-colors
+                    ${isActive ? "bg-white/90 text-[var(--accent)] shadow-sm" : "bg-[var(--bg-subtle)] text-current"}
+                  `}
+                >
+                  <Icon size={19} strokeWidth={isActive ? 2.15 : 1.65} absoluteStrokeWidth />
+                </span>
                 <span>{item.label}</span>
               </Link>
             </li>
