@@ -7,7 +7,7 @@ export const size = {
 
 export const contentType = "image/png";
 
-/** テラスター向けアプリアイコン（グラデ＋丸み十字＋ソフトシャドウ） */
+/** テラスター公式LINE アイコン（LINEグリーン＋吹き出し＋T） */
 export default function Icon() {
   return new ImageResponse(
     (
@@ -20,87 +20,81 @@ export default function Icon() {
           justifyContent: "center",
           position: "relative",
           overflow: "hidden",
-          background: "linear-gradient(148deg, #7b86eb 0%, #5e6ad2 42%, #4349a8 100%)",
+          background: "linear-gradient(160deg, #12c75a 0%, #06b049 55%, #059040 100%)",
         }}
       >
+        {/* 光沢ハイライト */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(ellipse 85% 70% at 28% 22%, rgba(255,255,255,0.38) 0%, transparent 52%)",
+              "radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255,255,255,0.30) 0%, transparent 55%)",
           }}
         />
+
+        {/* LINE風吹き出し */}
         <div
           style={{
             position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 60% 50% at 88% 92%, rgba(20,184,166,0.35) 0%, transparent 45%)",
+            left: 76,
+            top: 90,
+            width: 360,
+            height: 280,
+            borderRadius: 56,
+            background: "rgba(255,255,255,0.18)",
+            border: "4px solid rgba(255,255,255,0.55)",
           }}
         />
-        {/* 十字の影 */}
+        {/* 吹き出しの尻尾 */}
         <div
           style={{
             position: "absolute",
-            left: 230 + 7,
-            top: 146 + 9,
+            left: 130,
+            top: 352,
             width: 52,
-            height: 220,
-            borderRadius: 26,
-            background: "rgba(15, 23, 42, 0.28)",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: 146 + 7,
-            top: 230 + 9,
-            width: 220,
             height: 52,
-            borderRadius: 26,
-            background: "rgba(15, 23, 42, 0.22)",
+            background: "rgba(255,255,255,0.18)",
+            borderRight: "4px solid rgba(255,255,255,0.55)",
+            borderBottom: "4px solid rgba(255,255,255,0.55)",
+            transform: "rotate(15deg)",
+            borderRadius: "0 0 16px 0",
           }}
         />
-        {/* 十字本体 */}
+
+        {/* T の文字 */}
         <div
           style={{
             position: "absolute",
-            left: 230,
-            top: 146,
-            width: 52,
-            height: 220,
-            borderRadius: 26,
-            background: "#ffffff",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.35)",
+            left: 156,
+            top: 130,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
           }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            left: 146,
-            top: 230,
-            width: 220,
-            height: 52,
-            borderRadius: 26,
-            background: "#ffffff",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.35)",
-          }}
-        />
-        {/* LINE/ケアを示す小アクセント */}
-        <div
-          style={{
-            position: "absolute",
-            right: 56,
-            bottom: 56,
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            background: "linear-gradient(145deg, #5eead4 0%, #14b8a6 100%)",
-            border: "3px solid rgba(255,255,255,0.92)",
-            boxShadow: "0 10px 28px rgba(15,23,42,0.25)",
-          }}
-        />
+        >
+          {/* 横棒 */}
+          <div
+            style={{
+              width: 200,
+              height: 46,
+              borderRadius: 23,
+              background: "#ffffff",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.18)",
+            }}
+          />
+          {/* 縦棒 */}
+          <div
+            style={{
+              width: 46,
+              height: 160,
+              borderRadius: 23,
+              background: "#ffffff",
+              marginTop: -4,
+              boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
+            }}
+          />
+        </div>
       </div>
     ),
     { ...size }

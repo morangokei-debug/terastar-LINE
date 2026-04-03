@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "調剤薬局向けLINEフォローアップサービス",
     start_url: "/",
     display: "fullscreen",
-    background_color: "#5e6ad2",
-    theme_color: "#5e6ad2",
+    background_color: "#06b049",
+    theme_color: "#06b049",
     orientation: "any",
     icons: [
       {
