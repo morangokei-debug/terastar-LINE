@@ -15,20 +15,21 @@ export default async function ChatPage() {
     );
   }
 
-  const { data: patients } = await supabase
-    .schema("terastar_line")
-    .from("patients")
-    .select("id, name, line_user_id")
-    .eq("tenant_id", tenant.id)
-    .not("line_user_id", "is", null)
-    .order("name");
-
-  const { data: summaries } = await supabase
-    .schema("terastar_line")
-    .from("chat_patient_summaries")
-    .select("patient_id, last_sender, last_content, last_created_at, unread_count")
-    .eq("tenant_id", tenant.id)
-    .order("last_created_at", { ascending: false });
+  const [{ data: patients }, { data: summaries }] = await Promise.all([
+    supabase
+      .schema("terastar_line")
+      .from("patients")
+      .select("id, name, line_user_id")
+      .eq("tenant_id", tenant.id)
+      .not("line_user_id", "is", null)
+      .order("name"),
+    supabase
+      .schema("terastar_line")
+      .from("chat_patient_summaries")
+      .select("patient_id, last_sender, last_content, last_created_at, unread_count")
+      .eq("tenant_id", tenant.id)
+      .order("last_created_at", { ascending: false }),
+  ]);
 
   const summaryByPatient = new Map((summaries ?? []).map((s) => [s.patient_id, s]));
 

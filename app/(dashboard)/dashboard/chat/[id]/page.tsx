@@ -22,20 +22,24 @@ export default async function ChatDetailPage({
 
   if (!patient || !patient.line_user_id) notFound();
 
-  const { data: messages } = await supabase
-    .schema("terastar_line")
-    .from("chat_messages")
-    .select("id, sender, content, image_url, created_at")
-    .eq("patient_id", id)
-    .order("created_at", { ascending: true });
+  const [{ data: messages }] = await Promise.all([
+    supabase
+      .schema("terastar_line")
+      .from("chat_messages")
+      .select("id, sender, content, image_url, created_at")
+      .eq("patient_id", id)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabase
+      .schema("terastar_line")
+      .from("chat_messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("patient_id", id)
+      .eq("sender", "patient")
+      .is("read_at", null),
+  ]);
 
-  await supabase
-    .schema("terastar_line")
-    .from("chat_messages")
-    .update({ read_at: new Date().toISOString() })
-    .eq("patient_id", id)
-    .eq("sender", "patient")
-    .is("read_at", null);
+  const sortedMessages = (messages ?? []).reverse();
 
   return (
     <div>
@@ -55,7 +59,7 @@ export default async function ChatDetailPage({
         patientId={patient.id}
         lineUserId={patient.line_user_id}
         tenantId={tenant?.id ?? null}
-        initialMessages={messages ?? []}
+        initialMessages={sortedMessages}
       />
     </div>
   );
