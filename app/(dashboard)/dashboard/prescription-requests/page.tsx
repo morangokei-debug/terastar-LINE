@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getTenant } from "@/lib/get-tenant";
+import Link from "next/link";
 
 export default async function PrescriptionRequestsPage() {
   const supabase = await createClient();
@@ -17,7 +18,7 @@ export default async function PrescriptionRequestsPage() {
   const { data: requests, error } = await supabase
     .schema("terastar_line")
     .from("prescription_requests")
-    .select("id, patient_name, memo, image_url, birth_date, created_at")
+    .select("id, patient_name, memo, image_url, birth_date, created_at, line_user_id")
     .eq("tenant_id", tenant.id)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -26,11 +27,36 @@ export default async function PrescriptionRequestsPage() {
     console.error("[prescription-requests]", error);
   }
 
+  const lineUserIds = [
+    ...new Set(
+      (requests ?? [])
+        .map((r) => r.line_user_id)
+        .filter((id): id is string => Boolean(id))
+    ),
+  ];
+
+  let patientIdByLineUserId = new Map<string, string>();
+  if (lineUserIds.length > 0) {
+    const { data: linkedPatients } = await supabase
+      .schema("terastar_line")
+      .from("patients")
+      .select("id, line_user_id")
+      .eq("tenant_id", tenant.id)
+      .in("line_user_id", lineUserIds);
+
+    patientIdByLineUserId = new Map(
+      (linkedPatients ?? []).map((p) => [p.line_user_id as string, p.id])
+    );
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-8">受信処方箋</h1>
-      <p className="text-sm text-[var(--text-muted)] mb-6">
+      <p className="text-sm text-[var(--text-muted)] mb-2">
         LINEから患者が送信した処方箋の一覧です。
+      </p>
+      <p className="text-xs text-[var(--text-muted)] mb-6">
+        「チャットを開く」は、患者一覧でLINEが紐付いている場合のみ表示されます。
       </p>
 
       {error && (
@@ -81,6 +107,9 @@ export default async function PrescriptionRequestsPage() {
                   メモ
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
+                  チャット
+                </th>
+                <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
                   処方箋
                 </th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
@@ -89,7 +118,11 @@ export default async function PrescriptionRequestsPage() {
               </tr>
             </thead>
             <tbody>
-              {requests.map((r) => (
+              {requests.map((r) => {
+                const chatPatientId = r.line_user_id
+                  ? patientIdByLineUserId.get(r.line_user_id)
+                  : undefined;
+                return (
                 <tr
                   key={r.id}
                   style={{ borderBottom: "1px solid var(--border-color)" }}
@@ -100,6 +133,30 @@ export default async function PrescriptionRequestsPage() {
                   </td>
                   <td className="py-4 px-6 text-[var(--text-secondary)]">
                     {r.memo || "—"}
+                  </td>
+                  <td className="py-4 px-6 text-sm">
+                    {chatPatientId ? (
+                      <Link
+                        href={`/dashboard/chat/${chatPatientId}`}
+                        className="inline-flex items-center gap-1 font-medium text-[var(--accent-primary)] hover:underline"
+                      >
+                        チャットを開く
+                      </Link>
+                    ) : r.line_user_id ? (
+                      <span
+                        className="text-[var(--text-muted)]"
+                        title="このLINEユーザーに対応する患者が患者一覧に未登録です"
+                      >
+                        患者未登録
+                      </span>
+                    ) : (
+                      <span
+                        className="text-[var(--text-muted)]"
+                        title="処方箋送信時のLINE情報が無いためチャットへリンクできません"
+                      >
+                        —
+                      </span>
+                    )}
                   </td>
                   <td className="py-4 px-6">
                     {r.image_url ? (
@@ -123,7 +180,8 @@ export default async function PrescriptionRequestsPage() {
                       : "—"}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
