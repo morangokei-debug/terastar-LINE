@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { LineReturnButton } from "@/components/LineReturnButton";
 
 function PrescriptionForm() {
   const searchParams = useSearchParams();
@@ -85,27 +86,18 @@ function PrescriptionForm() {
             <br />
             お薬のご用意ができましたらLINEでお知らせします。
           </p>
-          <a
-            href="line://nv/chat"
-            onClick={(e) => {
-              e.preventDefault();
-              window.location.href = "line://nv/chat";
-              setTimeout(() => {
-                try {
-                  window.close();
-                } catch {}
-              }, 300);
-            }}
-            className="inline-block w-full py-4 px-4 rounded-lg font-medium text-center cursor-pointer select-none active:opacity-90 relative z-10"
+          <LineReturnButton
+            className="inline-block w-full py-4 px-4 rounded-lg font-medium text-center cursor-pointer select-none active:opacity-90 relative z-10 border-0"
             style={{
               backgroundColor: "var(--accent-primary)",
               color: "white",
               minHeight: 48,
               touchAction: "manipulation",
             }}
-          >
-            LINEに戻る
-          </a>
+          />
+          <p className="mt-4 text-xs text-[var(--text-muted)]">
+            戻れない場合は、画面上部の「閉じる」または端末の戻るボタンでLINEを開いてください。
+          </p>
         </div>
       </div>
     );
