@@ -1,7 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export async function GET() {
+function isAuthorized(req: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const header = req.headers.get("authorization") ?? "";
+  const bearer = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const query = req.nextUrl.searchParams.get("secret") ?? "";
+  return bearer === secret || query === secret;
+}
+
+export async function GET(req: NextRequest) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   const checks: Record<string, string> = {};
 
   checks["LINE_CHANNEL_SECRET"] = process.env.LINE_CHANNEL_SECRET ? "SET" : "MISSING";

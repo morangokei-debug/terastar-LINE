@@ -1,11 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+
+function isAuthorized(req: NextRequest): boolean {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const header = req.headers.get("authorization") ?? "";
+  const bearer = header.startsWith("Bearer ") ? header.slice(7) : "";
+  const query = req.nextUrl.searchParams.get("secret") ?? "";
+  return bearer === secret || query === secret;
+}
 
 /**
  * Webhook の患者登録ロジックをテストするエンドポイント
  * テスト用のダミー line_user_id で insert → 確認 → 削除
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
   const results: Record<string, string> = {};
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
