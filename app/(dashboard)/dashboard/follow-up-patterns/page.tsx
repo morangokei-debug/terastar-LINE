@@ -9,7 +9,7 @@ export default async function FollowUpPatternsPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォローアップ文例・登録</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">フォローアップ文例・登録</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -24,12 +24,12 @@ export default async function FollowUpPatternsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">フォローアップ文例・登録</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">フォローアップ文例・登録</h1>
         <Link
           href="/dashboard/follow-up-patterns/new"
-          className="px-4 py-2 rounded-lg font-medium transition-all hover:scale-[0.99] active:scale-[0.97]"
-          style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+          className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+          style={{ backgroundColor: "var(--accent-primary)" }}
         >
           新規登録
         </Link>
@@ -37,32 +37,34 @@ export default async function FollowUpPatternsPage() {
 
       {!patterns?.length ? (
         <div
-          className="p-12 rounded-xl text-center"
+          className="rounded-2xl p-12 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)] mb-4">パターンがまだ登録されていません</p>
           <Link
             href="/dashboard/follow-up-patterns/new"
-            className="inline-block px-6 py-3 rounded-lg font-medium"
-            style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+            className="inline-block rounded-xl px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+            style={{ backgroundColor: "var(--accent-primary)" }}
           >
             最初のパターンを登録する
           </Link>
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+              <tr>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">パターン名</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">送信日数</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">文例</th>
@@ -71,10 +73,7 @@ export default async function FollowUpPatternsPage() {
             </thead>
             <tbody>
               {patterns.map((p) => (
-                <tr
-                  key={p.id}
-                  style={{ borderBottom: "1px solid var(--border-color)" }}
-                >
+                <tr key={p.id}>
                   <td className="py-4 px-6 font-medium">{p.name}</td>
                   <td className="py-4 px-6 text-[var(--text-secondary)]">
                     {p.days_after}日後

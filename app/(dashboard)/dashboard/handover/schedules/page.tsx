@@ -10,7 +10,7 @@ export default async function HandoverSchedulesPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">フォローアップ送信予定</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">フォローアップ送信予定</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -42,12 +42,12 @@ export default async function HandoverSchedulesPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">フォローアップ送信予定</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">フォローアップ送信予定</h1>
         <Link
           href="/dashboard/handover"
-          className="px-4 py-2 rounded-lg font-medium"
-          style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+          className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+          style={{ backgroundColor: "var(--accent-primary)" }}
         >
           フォローアップ実施入力
         </Link>
@@ -55,32 +55,34 @@ export default async function HandoverSchedulesPage() {
 
       {!pending.length ? (
         <div
-          className="p-12 rounded-xl text-center"
+          className="rounded-2xl p-12 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)] mb-4">送信予定はありません</p>
           <Link
             href="/dashboard/handover"
-            className="inline-block px-6 py-3 rounded-lg font-medium"
-            style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+            className="inline-block rounded-xl px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+            style={{ backgroundColor: "var(--accent-primary)" }}
           >
             フォローアップを入力する
           </Link>
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+              <tr>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">患者名</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">送信予定日時</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">パターン</th>

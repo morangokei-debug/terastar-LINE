@@ -51,11 +51,11 @@ export function NotificationRegister() {
 
   return (
     <div
-      className="rounded-xl p-6"
+      className="rounded-2xl p-6"
       style={{
-        backgroundColor: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
-        boxShadow: "var(--shadow-sm)",
+        backgroundColor: "var(--bg-surface)",
+        border: "1px solid var(--border-subtle)",
+        boxShadow: "var(--dashboard-card-shadow)",
       }}
     >
       <h3 className="font-medium mb-2">処方箋・チャット受信時のLINE通知</h3>

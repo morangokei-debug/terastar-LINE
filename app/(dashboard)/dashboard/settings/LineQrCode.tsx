@@ -7,11 +7,11 @@ const QR_CODE_URL = `https://api.qrserver.com/v1/create-qr-code/?size=256x256&da
 export function LineQrCode() {
   return (
     <div
-      className="rounded-xl p-6"
+      className="rounded-2xl p-6"
       style={{
-        backgroundColor: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
-        boxShadow: "var(--shadow-sm)",
+        backgroundColor: "var(--bg-surface)",
+        border: "1px solid var(--border-subtle)",
+        boxShadow: "var(--dashboard-card-shadow)",
       }}
     >
       <h3 className="font-medium mb-2">LINE友だち追加用QRコード</h3>
@@ -25,7 +25,7 @@ export function LineQrCode() {
           href={LINE_ADD_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="block p-4 rounded-xl shrink-0"
+          className="block shrink-0 rounded-2xl p-4"
           style={{ backgroundColor: "white" }}
           aria-label="LINE友だち追加"
         >

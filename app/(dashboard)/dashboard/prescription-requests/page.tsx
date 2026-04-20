@@ -9,7 +9,7 @@ export default async function PrescriptionRequestsPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">受信処方箋</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">受信処方箋</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -51,7 +51,7 @@ export default async function PrescriptionRequestsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">受信処方箋</h1>
+      <h1 className="mb-8 text-2xl font-bold tracking-tight">受信処方箋</h1>
       <p className="text-sm text-[var(--text-muted)] mb-2">
         LINEから患者が送信した処方箋の一覧です。
       </p>
@@ -61,10 +61,11 @@ export default async function PrescriptionRequestsPage() {
 
       {error && (
         <div
-          className="p-4 rounded-xl mb-6"
+          className="mb-6 rounded-2xl p-4"
           style={{
             backgroundColor: "rgba(252, 129, 129, 0.1)",
             border: "1px solid var(--color-error)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-sm text-[var(--color-error)]">
@@ -78,25 +79,27 @@ export default async function PrescriptionRequestsPage() {
 
       {!requests || requests.length === 0 ? (
         <div
-          className="p-8 rounded-xl text-center"
+          className="rounded-2xl p-8 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)]">リクエストはまだありません</p>
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+              <tr>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">
                   お名前
                 </th>
@@ -123,10 +126,7 @@ export default async function PrescriptionRequestsPage() {
                   ? patientIdByLineUserId.get(r.line_user_id)
                   : undefined;
                 return (
-                <tr
-                  key={r.id}
-                  style={{ borderBottom: "1px solid var(--border-color)" }}
-                >
+                <tr key={r.id}>
                   <td className="py-4 px-6 font-medium">{r.patient_name}</td>
                   <td className="py-4 px-6 text-sm text-[var(--text-secondary)]">
                     {r.birth_date || "—"}

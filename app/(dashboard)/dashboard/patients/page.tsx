@@ -9,7 +9,7 @@ export default async function PatientsPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">患者一覧</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">患者一覧</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -24,12 +24,12 @@ export default async function PatientsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">患者一覧</h1>
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-2xl font-bold tracking-tight">患者一覧</h1>
         <Link
           href="/dashboard/patients/new"
-          className="px-4 py-2 rounded-lg font-medium transition-all hover:scale-[0.99] active:scale-[0.97]"
-          style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+          className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+          style={{ backgroundColor: "var(--accent-primary)" }}
         >
           新規登録
         </Link>
@@ -37,32 +37,34 @@ export default async function PatientsPage() {
 
       {!patients?.length ? (
         <div
-          className="p-12 rounded-xl text-center"
+          className="rounded-2xl p-12 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)] mb-4">患者がまだ登録されていません</p>
           <Link
             href="/dashboard/patients/new"
-            className="inline-block px-6 py-3 rounded-lg font-medium"
-            style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
+            className="inline-block rounded-xl px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-95"
+            style={{ backgroundColor: "var(--accent-primary)" }}
           >
             最初の患者を登録する
           </Link>
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+              <tr>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">患者名</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">生年月日</th>
                 <th className="text-left py-4 px-6 font-medium text-[var(--text-secondary)]">LINE</th>
@@ -71,10 +73,7 @@ export default async function PatientsPage() {
             </thead>
             <tbody>
               {patients.map((p) => (
-                <tr
-                  key={p.id}
-                  style={{ borderBottom: "1px solid var(--border-color)" }}
-                >
+                <tr key={p.id}>
                   <td className="py-4 px-6">
                     <Link
                       href={`/dashboard/patients/${p.id}`}

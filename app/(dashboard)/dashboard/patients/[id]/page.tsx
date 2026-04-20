@@ -33,15 +33,16 @@ export default async function PatientDetailPage({
           >
             ← 患者一覧
           </Link>
-          <h1 className="text-2xl font-bold">{patient.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{patient.name}</h1>
         </div>
       </div>
 
       <div
-        className="p-6 rounded-xl mb-8"
+        className="mb-8 rounded-2xl p-6"
         style={{
-          backgroundColor: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--bg-surface)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--dashboard-card-shadow)",
         }}
       >
         <h2 className="font-medium mb-4 text-[var(--text-secondary)]">基本情報</h2>
@@ -55,7 +56,7 @@ export default async function PatientDetailPage({
             initialBirthDate={patient.birth_date}
           />
         </div>
-        <dl className="grid gap-3 sm:grid-cols-2 pt-4" style={{ borderTop: "1px solid var(--border-color)" }}>
+        <dl className="grid gap-3 sm:grid-cols-2 pt-4" style={{ borderTop: "1px solid var(--border-subtle)" }}>
           <div>
             <dt className="text-sm text-[var(--text-muted)]">電話番号</dt>
             <dd>{patient.phone ?? "—"}</dd>

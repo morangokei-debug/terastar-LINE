@@ -70,6 +70,28 @@
   --dashboard-card-shadow: 0 2px 8px rgba(26, 34, 52, 0.06);
 }
 
+/* ダッシュボード（ログイン・患者向けページは対象外）— モックのオレンジトーンに統一 */
+.dashboard-app {
+  --accent-primary: var(--dashboard-accent);
+  --accent-hover: var(--dashboard-accent-hover);
+  --accent-secondary: var(--dashboard-accent-hover);
+  --border-focus: var(--dashboard-accent);
+  --accent-light: rgba(255, 112, 25, 0.14);
+}
+
+.dashboard-app table thead th {
+  background-color: var(--bg-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.dashboard-app table tbody tr {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.dashboard-app table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.65);
+}
+
 * {
   box-sizing: border-box;
 }

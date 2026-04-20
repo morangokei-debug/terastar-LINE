@@ -9,19 +9,21 @@ export default function DashboardLoading() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="h-28 rounded-xl"
+            className="h-28 rounded-2xl"
             style={{
               backgroundColor: "var(--bg-surface)",
-              border: "1px solid var(--border-default)",
+              border: "1px solid var(--border-subtle)",
+              boxShadow: "var(--dashboard-card-shadow)",
             }}
           />
         ))}
       </div>
       <div
-        className="h-64 rounded-xl"
+        className="h-64 rounded-2xl"
         style={{
           backgroundColor: "var(--bg-surface)",
-          border: "1px solid var(--border-default)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--dashboard-card-shadow)",
         }}
       />
     </div>

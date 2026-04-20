@@ -9,7 +9,7 @@ export default async function ChatPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">チャット</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">チャット</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -52,17 +52,18 @@ export default async function ChatPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">チャット</h1>
+      <h1 className="mb-2 text-2xl font-bold tracking-tight">チャット</h1>
       <p className="text-[var(--text-muted)] mb-6 text-sm">
         LINE紐付け済みの患者とのやり取りを表示します。
       </p>
 
       {!withLast.length ? (
         <div
-          className="p-12 rounded-xl text-center"
+          className="rounded-2xl p-12 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)]">
@@ -71,10 +72,11 @@ export default async function ChatPage() {
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           {withLast.map((p) => (
@@ -83,9 +85,8 @@ export default async function ChatPage() {
               href={`/dashboard/chat/${p.id}`}
               className="block px-6 py-4 hover:bg-[var(--bg-tertiary)] transition-colors"
               style={{
-                borderBottom: "1px solid var(--border-color)",
-                backgroundColor:
-                  p.unread > 0 ? "rgba(0, 188, 212, 0.04)" : undefined,
+                borderBottom: "1px solid var(--border-subtle)",
+                backgroundColor: p.unread > 0 ? "var(--accent-light)" : undefined,
               }}
             >
               <div className="flex justify-between items-center mb-1">

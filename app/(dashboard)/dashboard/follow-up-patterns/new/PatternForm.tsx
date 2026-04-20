@@ -73,10 +73,11 @@ export function PatternForm() {
       onSubmit={handleSubmit}
       className="max-w-xl space-y-6"
       style={{
-        backgroundColor: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
-        borderRadius: "12px",
+        backgroundColor: "var(--bg-surface)",
+        border: "1px solid var(--border-subtle)",
+        borderRadius: "16px",
         padding: "24px",
+        boxShadow: "var(--dashboard-card-shadow)",
       }}
     >
       <div>

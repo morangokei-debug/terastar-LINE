@@ -116,10 +116,11 @@ export function ChatView({
 
   return (
     <div
-      className="rounded-xl overflow-hidden flex flex-col"
+      className="flex flex-col overflow-hidden rounded-2xl"
       style={{
-        backgroundColor: "var(--bg-secondary)",
-        border: "1px solid var(--border-color)",
+        backgroundColor: "var(--bg-surface)",
+        border: "1px solid var(--border-subtle)",
+        boxShadow: "var(--dashboard-card-shadow)",
         height: "calc(100vh - 220px)",
         minHeight: 400,
       }}

@@ -9,7 +9,7 @@ export default async function BroadcastPage() {
   if (!tenant) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-8">一斉送信</h1>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight">一斉送信</h1>
         <p className="text-[var(--text-muted)]">テナントが登録されていません。</p>
       </div>
     );
@@ -25,7 +25,7 @@ export default async function BroadcastPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-2">一斉送信</h1>
+      <h1 className="mb-2 text-2xl font-bold tracking-tight">一斉送信</h1>
       <p className="text-sm text-[var(--text-muted)] mb-8">
         LINE友だち全員、または選択した患者にメッセージを一斉送信します。
       </p>

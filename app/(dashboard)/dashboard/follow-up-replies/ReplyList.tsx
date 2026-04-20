@@ -122,10 +122,11 @@ export function ReplyList({
       {/* 一覧 */}
       {filtered.length === 0 ? (
         <div
-          className="p-12 rounded-xl text-center"
+          className="rounded-2xl p-12 text-center"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <p className="text-[var(--text-muted)]">
@@ -136,10 +137,11 @@ export function ReplyList({
         </div>
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="overflow-hidden rounded-2xl"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           {filtered.map((r) => (
@@ -147,10 +149,8 @@ export function ReplyList({
               key={r.id}
               className="flex items-start gap-4 px-6 py-4 transition-colors"
               style={{
-                borderBottom: "1px solid var(--border-color)",
-                backgroundColor: r.checked_at
-                  ? "transparent"
-                  : "rgba(0, 188, 212, 0.04)",
+                borderBottom: "1px solid var(--border-subtle)",
+                backgroundColor: r.checked_at ? "transparent" : "var(--accent-light)",
               }}
             >
               {/* 確認ボタン */}

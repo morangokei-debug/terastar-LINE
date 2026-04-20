@@ -6,17 +6,17 @@ import { PushRegister } from "../../components/PushRegister";
 export default function SettingsPage() {
   return (
     <div>
-      <h2 className="mb-8 text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
+      <h2 className="mb-6 text-2xl font-bold tracking-tight text-[var(--text-primary)]">
         設定
       </h2>
 
       <div className="space-y-6">
         <div
-          className="rounded-xl p-6"
+          className="rounded-2xl p-6"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-            boxShadow: "var(--shadow-sm)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <h3 className="font-medium mb-2">タブレットでフルスクリーン表示</h3>
@@ -33,11 +33,11 @@ export default function SettingsPage() {
         <NotificationRegister />
 
         <div
-          className="rounded-xl p-6"
+          className="rounded-2xl p-6"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-            boxShadow: "var(--shadow-sm)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <h3 className="font-medium mb-2">友だち追加が患者一覧に反映されない場合</h3>
@@ -55,11 +55,11 @@ export default function SettingsPage() {
         <RichMenuSetup />
 
         <div
-          className="rounded-xl p-6"
+          className="rounded-2xl p-6"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-            boxShadow: "var(--shadow-sm)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <h3 className="font-medium mb-2">友だち追加時の挨拶文</h3>
@@ -97,11 +97,11 @@ export default function SettingsPage() {
         </div>
 
         <div
-          className="rounded-xl p-6"
+          className="rounded-2xl p-6"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-            boxShadow: "var(--shadow-sm)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <h3 className="font-medium mb-2">ホームページURL</h3>

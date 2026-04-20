@@ -51,7 +51,7 @@ export default async function ChatDetailPage({
           >
             ← チャット一覧
           </Link>
-          <h1 className="text-2xl font-bold">{patient.name}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{patient.name}</h1>
         </div>
       </div>
 

@@ -74,7 +74,7 @@ export function ScheduleRow({ schedule }: Props) {
 
   if (sent) {
     return (
-      <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+      <tr>
         <td className="py-4 px-6">{schedule.patientName}</td>
         <td className="py-4 px-6">
           {schedule.scheduled_at ? formatJST(schedule.scheduled_at) : "—"}
@@ -95,7 +95,7 @@ export function ScheduleRow({ schedule }: Props) {
   }
 
   return (
-    <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+    <tr>
       <td className="py-4 px-6">{schedule.patientName}</td>
       <td className="py-4 px-6">
         {editing ? (

@@ -37,7 +37,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="dashboard-app flex min-h-screen">
       <Sidebar
         userName={userName}
         tenantName={tenant?.name ?? "テラスターファーマシー"}

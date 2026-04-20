@@ -78,10 +78,11 @@ export function BroadcastForm({ patients }: { patients: Patient[] }) {
     <div className="max-w-2xl space-y-6">
       {/* 送信モード選択 */}
       <div
-        className="rounded-xl p-6"
+        className="rounded-2xl p-6"
         style={{
-          backgroundColor: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--bg-surface)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--dashboard-card-shadow)",
         }}
       >
         <label className="block text-sm font-medium mb-4 text-[var(--text-primary)]">
@@ -148,10 +149,11 @@ export function BroadcastForm({ patients }: { patients: Patient[] }) {
       {/* マルチキャスト時の患者選択 */}
       {mode === "multicast" && (
         <div
-          className="rounded-xl p-6"
+          className="rounded-2xl p-6"
           style={{
-            backgroundColor: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-subtle)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <div className="flex justify-between items-center mb-4">
@@ -204,10 +206,11 @@ export function BroadcastForm({ patients }: { patients: Patient[] }) {
 
       {/* メッセージ入力 */}
       <div
-        className="rounded-xl p-6"
+        className="rounded-2xl p-6"
         style={{
-          backgroundColor: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
+          backgroundColor: "var(--bg-surface)",
+          border: "1px solid var(--border-subtle)",
+          boxShadow: "var(--dashboard-card-shadow)",
         }}
       >
         <label
@@ -235,7 +238,7 @@ export function BroadcastForm({ patients }: { patients: Patient[] }) {
       {/* 結果表示 */}
       {result && (
         <div
-          className="rounded-xl px-6 py-4 text-sm font-medium"
+          className="rounded-2xl px-6 py-4 text-sm font-medium"
           role="alert"
           style={{
             backgroundColor:
@@ -270,10 +273,11 @@ export function BroadcastForm({ patients }: { patients: Patient[] }) {
         </button>
       ) : (
         <div
-          className="rounded-xl p-6 space-y-4"
+          className="rounded-2xl p-6 space-y-4"
           style={{
-            backgroundColor: "var(--bg-secondary)",
+            backgroundColor: "var(--bg-surface)",
             border: "2px solid var(--color-warning)",
+            boxShadow: "var(--dashboard-card-shadow)",
           }}
         >
           <div className="flex items-center gap-2 text-[var(--color-warning)]">
