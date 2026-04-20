@@ -86,13 +86,15 @@ function PrescriptionForm() {
             お薬のご用意ができましたらLINEでお知らせします。
           </p>
           <a
-            href="https://line.me/R/nv/chat"
+            href="line://nv/chat"
             onClick={(e) => {
               e.preventDefault();
-              try {
-                window.close();
-              } catch {}
-              window.location.href = "https://line.me/R/nv/chat";
+              window.location.href = "line://nv/chat";
+              setTimeout(() => {
+                try {
+                  window.close();
+                } catch {}
+              }, 300);
             }}
             className="inline-block w-full py-4 px-4 rounded-lg font-medium text-center cursor-pointer select-none active:opacity-90 relative z-10"
             style={{
