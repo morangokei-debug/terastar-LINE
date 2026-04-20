@@ -110,15 +110,6 @@ export function ChatView({
       });
     }
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        sender: "pharmacist",
-        content: input.trim(),
-        created_at: new Date().toISOString(),
-      },
-    ]);
     setInput("");
     setLoading(false);
   }
@@ -204,12 +195,21 @@ export function ChatView({
         className="p-3 border-t flex gap-2"
         style={{ borderColor: "var(--border-color)" }}
       >
-        <input
-          type="text"
+        <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="メッセージを入力"
-          className="flex-1 px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              if (input.trim() && !loading) {
+                handleSend(e as unknown as React.FormEvent);
+              }
+            }
+          }}
+          placeholder="メッセージを入力（Shift+Enterで改行）"
+          rows={1}
+          className="flex-1 px-4 py-3 rounded-lg bg-[var(--bg-tertiary)] border border-[var(--border-color)] text-[var(--text-primary)] text-sm resize-none"
+          style={{ maxHeight: "120px", overflowY: "auto" }}
         />
         <button
           type="submit"

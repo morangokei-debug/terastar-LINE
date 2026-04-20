@@ -1,6 +1,7 @@
 import { RichMenuSetup } from "./RichMenuSetup";
 import { LineQrCode } from "./LineQrCode";
 import { NotificationRegister } from "./NotificationRegister";
+import { PushRegister } from "../../components/PushRegister";
 
 export default function SettingsPage() {
   return (
@@ -28,6 +29,7 @@ export default function SettingsPage() {
         </div>
 
         <LineQrCode />
+        <PushRegister inline />
         <NotificationRegister />
 
         <div

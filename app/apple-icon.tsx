@@ -7,7 +7,7 @@ export const size = {
 
 export const contentType = "image/png";
 
-/** テラスター公式LINE Apple アイコン（icon.tsxと同デザイン縮小版） */
+/** 指定SVGベースのAppleアイコン */
 export default function AppleIcon() {
   return new ImageResponse(
     (
@@ -15,85 +15,55 @@ export default function AppleIcon() {
         style={{
           width: "100%",
           height: "100%",
+          position: "relative",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          position: "relative",
-          overflow: "hidden",
-          background: "linear-gradient(160deg, #12c75a 0%, #06b049 55%, #059040 100%)",
         }}
       >
-        {/* 光沢ハイライト */}
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+          <rect width="200" height="200" rx="20" fill="#C4949A" />
+          <path
+            d="M62 74 Q62 58 78 58 L142 58 Q158 58 158 74 L158 118 Q158 134 142 134 L112 134 L100 151 L103 134 L78 134 Q62 134 62 118 Z"
+            stroke="white"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
+          <line
+            x1="83"
+            y1="89"
+            x2="137"
+            y2="89"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            opacity="0.75"
+          />
+          <line
+            x1="83"
+            y1="104"
+            x2="122"
+            y2="104"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            opacity="0.75"
+          />
+        </svg>
         <div
           style={{
             position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 80% 60% at 30% 20%, rgba(255,255,255,0.30) 0%, transparent 55%)",
-          }}
-        />
-
-        {/* LINE風吹き出し */}
-        <div
-          style={{
-            position: "absolute",
-            left: 27,
-            top: 32,
-            width: 126,
-            height: 98,
-            borderRadius: 20,
-            background: "rgba(255,255,255,0.18)",
-            border: "2px solid rgba(255,255,255,0.55)",
-          }}
-        />
-        {/* 吹き出しの尻尾 */}
-        <div
-          style={{
-            position: "absolute",
-            left: 46,
-            top: 123,
-            width: 18,
-            height: 18,
-            background: "rgba(255,255,255,0.18)",
-            borderRight: "2px solid rgba(255,255,255,0.55)",
-            borderBottom: "2px solid rgba(255,255,255,0.55)",
-            transform: "rotate(15deg)",
-            borderRadius: "0 0 6px 0",
-          }}
-        />
-
-        {/* T の文字 */}
-        <div
-          style={{
-            position: "absolute",
-            left: 55,
-            top: 46,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            bottom: "11%",
+            color: "white",
+            fontFamily: "Georgia, serif",
+            fontSize: 16,
+            letterSpacing: 2,
+            opacity: 0.9,
           }}
         >
-          {/* 横棒 */}
-          <div
-            style={{
-              width: 70,
-              height: 16,
-              borderRadius: 8,
-              background: "#ffffff",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.18)",
-            }}
-          />
-          {/* 縦棒 */}
-          <div
-            style={{
-              width: 16,
-              height: 56,
-              borderRadius: 8,
-              background: "#ffffff",
-              marginTop: -2,
-              boxShadow: "0 2px 6px rgba(0,0,0,0.14)",
-            }}
-          />
+          LINE
         </div>
       </div>
     ),

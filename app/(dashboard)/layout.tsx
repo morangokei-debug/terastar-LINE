@@ -1,28 +1,47 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "./components/Sidebar";
 import { FullscreenButton } from "./components/FullscreenButton";
+import { getCurrentUser } from "@/lib/get-user";
+import { getTenant } from "@/lib/get-tenant";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
-  if (!data.user) {
+  if (!user) {
     redirect("/login");
   }
 
   const userName =
-    data.user.user_metadata?.full_name ??
-    data.user.email?.split("@")[0] ??
+    user.user_metadata?.full_name ??
+    user.email?.split("@")[0] ??
     undefined;
+
+  const tenant = await getTenant();
+  let initialUnread = 0;
+  if (tenant) {
+    const supabase = await createClient();
+    const { count } = await supabase
+      .schema("terastar_line")
+      .from("chat_messages")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenant.id)
+      .eq("sender", "patient")
+      .is("read_at", null);
+    initialUnread = count ?? 0;
+  }
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar userName={userName} />
+      <Sidebar
+        userName={userName}
+        tenantId={tenant?.id ?? null}
+        initialUnread={initialUnread}
+      />
         <main
         className="flex flex-1 flex-col overflow-auto"
         style={{ backgroundColor: "var(--bg-app)" }}

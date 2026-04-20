@@ -3,7 +3,15 @@
 import { LogOut } from "lucide-react";
 import { SidebarNav } from "./SidebarNav";
 
-export function Sidebar({ userName }: { userName?: string }) {
+export function Sidebar({
+  userName,
+  tenantId,
+  initialUnread,
+}: {
+  userName?: string;
+  tenantId?: string | null;
+  initialUnread?: number;
+}) {
   return (
     <aside
       className="flex w-64 flex-shrink-0 flex-col border-r"
@@ -35,7 +43,7 @@ export function Sidebar({ userName }: { userName?: string }) {
       </div>
 
       {/* ナビゲーション */}
-      <SidebarNav />
+      <SidebarNav tenantId={tenantId ?? null} initialUnread={initialUnread ?? 0} />
 
       {/* ログアウト */}
       <div className="border-t p-4" style={{ borderColor: "var(--border-default)" }}>

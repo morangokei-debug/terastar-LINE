@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { createClient } from "@supabase/supabase-js";
+import { sendPushToTenant } from "@/lib/web-push";
 
 const LINE_CHANNEL_SECRET = process.env.LINE_CHANNEL_SECRET;
 const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
@@ -471,7 +472,7 @@ export async function POST(request: NextRequest) {
             image_url: imageUrl,
           });
 
-          // 患者からのチャット受信時にLINE通知
+          // 患者からのチャット受信時にLINE通知 / Webプッシュ通知
           const { data: tenantForNotify } = await supabase
             .schema("terastar_line")
             .from("tenants")
@@ -479,16 +480,17 @@ export async function POST(request: NextRequest) {
             .eq("id", activeTenant.id)
             .single();
           const notifyUserId = tenantForNotify?.notification_line_user_id;
+          const { data: patientName } = await supabase
+            .schema("terastar_line")
+            .from("patients")
+            .select("name")
+            .eq("id", patient.id)
+            .single();
+          const name = patientName?.name ?? "患者";
+          const baseUrl = getBaseUrl();
+          const dashboardUrl = `${baseUrl}/dashboard/chat/${patient.id}`;
+
           if (notifyUserId && LINE_CHANNEL_ACCESS_TOKEN) {
-            const baseUrl = getBaseUrl();
-            const dashboardUrl = `${baseUrl}/dashboard/chat/${patient.id}`;
-            const { data: patientName } = await supabase
-              .schema("terastar_line")
-              .from("patients")
-              .select("name")
-              .eq("id", patient.id)
-              .single();
-            const name = patientName?.name ?? "患者";
             const notifyText = `💬 新しいチャットが届きました\n\n${name}さんから: ${content}\n\n確認: ${dashboardUrl}`;
             try {
               await fetch("https://api.line.me/v2/bot/message/push", {
@@ -505,6 +507,17 @@ export async function POST(request: NextRequest) {
             } catch (e) {
               console.warn("[LINE Webhook] chat notify failed:", e);
             }
+          }
+
+          try {
+            await sendPushToTenant(activeTenant.id, {
+              title: `${name}さんからメッセージ`,
+              body: isImage ? "画像が届きました" : content.slice(0, 120),
+              url: `/dashboard/chat/${patient.id}`,
+              tag: `chat-${patient.id}`,
+            });
+          } catch (e) {
+            console.warn("[LINE Webhook] web push failed:", e);
           }
         }
       } else if (event.type === "postback") {
