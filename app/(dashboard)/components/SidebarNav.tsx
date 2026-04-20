@@ -42,7 +42,6 @@ export function SidebarNav({
     setUnread(initialUnread);
   }, [initialUnread]);
 
-  // チャット関連ページに入ったらバッジをクリア
   useEffect(() => {
     if (pathname.startsWith("/dashboard/chat")) setUnread(0);
   }, [pathname]);
@@ -74,8 +73,8 @@ export function SidebarNav({
   }, [tenantId]);
 
   return (
-    <nav className="flex-1 overflow-y-auto py-4">
-      <ul className="space-y-0.5 px-3">
+    <nav className="flex-1 overflow-y-auto py-3">
+      <ul className="space-y-0.5 px-2">
         {navItems.map((item) => {
           const isActive =
             item.href === "/dashboard"
@@ -88,31 +87,37 @@ export function SidebarNav({
               <Link
                 href={item.href}
                 prefetch
+                title={item.label}
                 className={`
-                  flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-[background-color,color,box-shadow] duration-150
+                  group flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition-colors duration-150
                   ${isActive
-                    ? "bg-[var(--accent-subtle)] text-[var(--accent)] shadow-sm"
-                    : "text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+                    ? "bg-white/[0.12] text-white shadow-sm"
+                    : "text-white/55 hover:bg-white/[0.06] hover:text-white/90"
                   }
                 `}
                 style={
                   isActive
-                    ? { borderLeft: "3px solid var(--accent)", marginLeft: "-3px" }
-                    : undefined
+                    ? {
+                        boxShadow: "inset 3px 0 0 0 var(--dashboard-accent)",
+                      }
+                    : { boxShadow: "inset 3px 0 0 0 transparent" }
                 }
               >
                 <span
                   className={`
-                    flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg transition-colors
-                    ${isActive ? "bg-white/90 text-[var(--accent)] shadow-sm" : "bg-[var(--bg-subtle)] text-current"}
+                    flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl transition-colors
+                    ${isActive
+                      ? "bg-[var(--dashboard-accent)]/25 text-[var(--dashboard-accent)]"
+                      : "bg-white/[0.06] text-white/70 group-hover:text-white/90"
+                    }
                   `}
                 >
-                  <Icon size={19} strokeWidth={isActive ? 2.15 : 1.65} absoluteStrokeWidth />
+                  <Icon size={18} strokeWidth={isActive ? 2.1 : 1.65} absoluteStrokeWidth />
                 </span>
-                <span className="flex-1">{item.label}</span>
+                <span className="flex-1 truncate">{item.label}</span>
                 {badge > 0 && (
                   <span
-                    className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-xs font-bold text-white"
+                    className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-xs font-bold text-white"
                     style={{ backgroundColor: "var(--color-error)" }}
                   >
                     {badge > 99 ? "99+" : badge}
